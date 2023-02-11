@@ -1,0 +1,37 @@
+# Config file for Ig annotation (ig_annotation.py script)
+
+# General specs (relative paths are supported)
+wkdir: "./"
+#inputdir: "/home/lupo/bnabs_Klein/latest_bnabs_list"
+inputdir: "./sequences/"
+#input_file_prefix: "all_new_bnabs_seqs"
+input_file_prefix: "bnabs_seqs"
+#outdir: "./output/"
+
+#blast_database: "/home/lupo/igBlast/blast_database/"
+blast_database: "./../templates/"
+
+# Script step n. 1 (pre-processing of input files)
+preProcessFiles: True
+
+# Script step n. 2 (igBlast running)
+runIgBlast: True
+
+# Script step n. 3 (parsing of igBlast output)
+parseIgBlast: True
+
+# Script step n. 4 (writing of final sequence files, possibly reverted and trimmed)
+produceFinalFiles: True
+
+# Species
+species: "Homo_Sapiens"
+
+# Type of cell (can be "IgM" or "IgG")
+cellType: "IgG"
+
+# Type of chain (can be "heavy", "kappa" or "lambda")
+chainType: "heavy"
+
+# Trimming parameters
+n_l: 27
+n_r: 3

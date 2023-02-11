@@ -1,0 +1,43 @@
+# Config file for Ig annotation (ig_annotation.py script)
+
+# General specs (relative paths are supported)
+wkdir: "./"
+#outdir: "./output/"
+#blast_database: "/home/lupo/igBlast/blast_database/"
+blast_database: "./../templates/"
+
+# Script step n. 1 (pre-processing of input files)
+preProcessFiles: True
+
+# Script step n. 2 (igBlast running)
+runIgBlast: True
+
+# Script step n. 3 (parsing of igBlast output)
+parseIgBlast: True
+
+# Script step n. 4 (grouping sequences according to some features, eg. in-frame vs out-of-frame, and writing them into files)
+sortAndCohort: True
+
+# Species
+species: "Homo_Sapiens"
+
+# Type of cell (can be "IgM" or "IgG")
+cellType: "IgG"
+
+# Type of chain (can be "heavy", "kappa" or "lambda")
+chainType: "heavy"
+
+# Patient cohort (can be chosen among ['healthy', 'hiv1_viremic', 'hiv1_on_art', 'hcv', 'hiv1_top', 'healthy_topControl'])
+cohort: "healthy"
+
+# Quality filters
+# V gene should align at least for V_min_len nt
+V_min_len: 250
+UMIfilter: True
+UMI_thr: 3
+onlyAnnotatedCDR3: True
+
+# Trimming parameters
+# N. of nucleotides trimmed on the left (Nmer size is N = 2*n+1, I'm also taking into account the multialignment between the V germlines of +- 3) and on the right (Nmer size is N = 2*n+1, the J germlines end at the same position)
+n_l: 27
+n_r: 3
