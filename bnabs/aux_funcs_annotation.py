@@ -29,7 +29,7 @@ import datetime
 
 ########## settings ##########
 
-with open('annotation_config.yaml') as config_file:
+with open('config_annotation.yaml') as config_file:
     config = yaml.full_load(config_file)
 
 blast_database = config['blast_database']

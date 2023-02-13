@@ -1,6 +1,10 @@
 # bnabs_prob
 
-The present code, companion of the manuscript *``Determining probabilities of HIV-1 bNAb development in healthy and chronically infected individuals''*, is conceptually divided in two sections:
+### Cosimo Lupo &#169; 2018-2023
+
+---
+
+The present code, companion of the manuscript *"Determining probabilities of HIV-1 bNAb development in healthy and chronically infected individuals"*, is conceptually divided in two sections:
 
 1) `ig`, where we process B-Cell Receptor (BCR) repertoires from both healthy and chronically infected patientes. Sequences are firstly annotated through igBlast, then sorted and grouped by cohorts. Secondly, IGoR infers their recombination statistics, finally producing cohort-specific recombination models.
 
@@ -8,17 +12,18 @@ The present code, companion of the manuscript *``Determining probabilities of HI
 
 Test datasets of 5'000 BCR heavy- and light-chain sequences for an healthy donor are provided under `ig/healthy_IgG`, allowing to directly run the present code. Under `bnabs/sequences`, instead, we provided heavy- and light-chain sequences for the bnabs analyzed in the manuscript, together with a summary of their features relevant for the present analysis (e.g. their neutralization breadth). Some IGoR models, inferred on the whole cohort of healthy patients, are also provided under the folder `templates/igor_models`, again for testing purposes.
 
-All the scripts, written in Python3, can hence be run with the attached test datasets. However, they rely on a local installation of igBlast and IGoR softwares. See following sections for installation and configuration details. V(D)J templates for igBlast and standard IGoR models are also provided here, under the folder `templates`.
+All the scripts, written in Python3, can hence be run with the attached test datasets. However, they rely on a local installation of igBlast and IGoR softwares. Expand the sections below for installation and configuration details. V(D)J templates for igBlast and standard IGoR models are also shipped with this code, under the folder `templates`.
 
--
+---
 
-### igBlast installation
+<details><summary><font size=5><b>igBlast installation</b></font></summary>
+<p>
 
 [igBlast](https://www.ncbi.nlm.nih.gov/igblast/index.cgi) is a powerful and versatile Ig annotation software. We used the following releases:
-
+	
 - blastn: [2.9.0](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.9.0/)
 - igblastn: [1.13.0](https://ftp.ncbi.nih.gov/blast/executables/igblast/release/1.13.0/)
-
+	
 with V,D,J templates extracted from [IMGT](https://www.imgt.org), formatted and attached to this release.
 
 Please go through the following of this section for the instructions on how to install igBlast and produce the templates in the desired format.
@@ -78,9 +83,13 @@ each time choosing in the header of the script the kind of database you want to 
 `makeblastdb -in database_file.fasta -parse_seqids -dbtype nucl`
 for each of the three gene types (V,D,J).
 
--
+</p>
+</details>
 
-### IGoR installation
+---
+
+<details><summary><font size=5><b>IGoR installation</b></font></summary>
+<p>
 
 After a first sequence annotation and a quality filtering through igBlast, the dataset is now ready to be analyzed through [IGoR](https://github.com/statbiophys/IGoR) software, which allows to infer V(D)J recombination related processes from sequencing data.
 
@@ -90,7 +99,10 @@ The underlying methodology and some biologically relevant results are described 
 
 We relied on a local installation of the [1.4.1](https://github.com/statbiophys/IGoR/releases/tag/1.4.1) release. Please refer to its [documentation](https://statbiophys.github.io/IGoR/) for a complete installation and usage guide.
 
--
+</p>
+</details>
+
+---
 
 ### The `ig` section
 
@@ -115,11 +127,11 @@ The **IGoR evaluation/inference** step, launched through the command:
 
 is again fully customizable from the `config_igor.yaml` file (e.g., the user can choose to run only the alignment step, leaving the inference or the final evaluation for later).
 
-The output consists into a set of folders (`aligns`, `evaluate`, `inference`, `output`) containing IGoR results, as described in its [documentation](https://statbiophys.github.io/IGoR/). In particular, the two files under the `inference` folder, `final_parms.txt` and `final_marginals.txt`, are the ones containing the inferred model to be used later for bnabs evaluation.
+The output consists into a set of folders (`aligns`, `evaluate`, `inference`, `output`) containing IGoR results, as described in its [documentation](https://statbiophys.github.io/IGoR/). In particular, the two files under the `inference` folder, `final_parms.txt` and `final_marginals.txt`, are the ones containing the inferred model to be used later for bnabs evaluation. To this aim, they will also be copied automatically under the `template/igor_models` folder.
 
 Also, a summary file is produced by combining for each sequence the results from igBlast annotation and IGoR evaluation, potentially useful for a deeper analysis at the single-sequence level, or also to extract summary statistics at the donor or cohort level (e.g., the distribution of the fraction of point-mutated positions).
 
--
+---
 
 ### The `bnabs` section
 
