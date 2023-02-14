@@ -1,7 +1,8 @@
 # Config file for Ig annotation (ig_annotation.py script)
 
 # General specs (relative paths are supported)
-wkdir: "./"
+wk_dir: "./"
+input_dir: "./datasets/"
 #outdir: "./output/"
 #blast_database: "/home/lupo/igBlast/blast_database/"
 blast_database: "./../templates/"
@@ -27,8 +28,8 @@ cellType: "IgG"
 # Type of chain (can be "heavy", "kappa" or "lambda")
 chainType: "heavy"
 
-# Patient cohort (can be chosen among ['healthy', 'hiv1_viremic', 'hiv1_on_art', 'hcv', 'hiv1_top', 'healthy_topControl'])
-cohort: "healthy"
+# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv'])
+cohort: "healthy_control"
 
 # Quality filters
 # V gene should align at least for V_min_len nt

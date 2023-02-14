@@ -36,15 +36,19 @@ from aux_funcs_annotation import run_igBlast, parse_igBlast, revert_seq, reconst
 with open('config_annotation.yaml') as config_file:
   config = yaml.full_load(config_file)
 
-wkdir = os.path.abspath(config['wkdir'])
-if wkdir[-1] != '/':
-  wkdir += '/'
+wk_dir = os.path.abspath(config['wk_dir'])
+if wk_dir[-1] != '/':
+  wk_dir += '/'
+input_dir = os.path.abspath(config['input_dir'])
+if input_dir[-1] != '/':
+  input_dir += '/'
 #outdir = os.path.abspath(config['outdir'])
 #if outdir[-1] != '/':
 #  outdir += '/'
 #if not os.path.exists(outdir):
 #  os.makedirs(outdir)
-cohort_dir = wkdir + config['cohort'] + '_' + config['cellType'] + '/'
+
+cohort_dir = input_dir + config['cohort'] + '_' + config['cellType'] + '/'
 sample_dirs = glob.glob(cohort_dir + 'BZR*')
 
 chainType_dict = {"heavy": "HC", "kappa": "KC", "lambda": "LC"}
@@ -221,6 +225,43 @@ if config['sortAndCohort']:
   
   print("\nStep 4: sort NP-P into new files and gather cohortwide data")
   
+  
+  # Check if the cohort-wide already exists (otherwise create it)
+  if not os.path.exists(cohort_dir + 'cohortWide_analysis'):
+    os.makedirs(cohort_dir + 'cohortWide_analysis')
+  
+
+  ##### gathering together initial sequences #####
+  
+  df_cohort = pd.DataFrame();
+  
+  sample_dirs.sort(key=natural_keys)
+  for i,sample_dir in enumerate(sample_dirs):
+    
+    sample = sample_dir.split('/')[-1]
+    
+    seqs_files = glob.glob(sample_dir + '/' + '*' + chainType_shortHand + '.csv')
+    seqs_files.sort(key=natural_keys)
+    
+    if(len(seqs_files)>0):
+      for j,fullfilename in enumerate(seqs_files):
+        in_file = fullfilename.split('.')[0] + '.csv'
+        df = pd.read_csv(in_file, sep=';', low_memory=False, keep_default_na=True, index_col=False)
+
+        # Append to the cohort dataframe
+        df_cohort = pd.concat([df_cohort,df]).reset_index(drop=True)
+  
+  # df_cohort headers: seq_ID ; raw_seq_nt
+  # df_cohort contains some raw_seq_nt duplicates coming from different individuals (but they are very few)
+  # So we drop duplicates, taking the unique raw_seq_nt from the first individual in the list
+  df_cohort = df_cohort.drop_duplicates(subset=['raw_seq_nt'], keep='first')
+
+  # Write the cohort-wide .csv file with all the sequences together
+  df_cohort.to_csv(cohort_dir + 'cohortWide_analysis/' + config['cohort'] + '_' + config['cellType'] + '_' + chainType_shortHand + '.csv', index=False, sep=';')
+  
+  
+  ##### gathering together .igBlast_statistics files and then sorting sequences #####
+
   df_cohort = pd.DataFrame();
 
   sample_dirs.sort(key=natural_keys)
@@ -340,13 +381,9 @@ if config['sortAndCohort']:
                     out_f.write(write_anchored_seqs(row) + "\n")
                   out_f.close()
   
-  # Check if the cohort-wide already exists (otherwise create it)
-  if not os.path.exists(cohort_dir + 'cohortWide_analysis'):
-    os.makedirs(cohort_dir + 'cohortWide_analysis')
-  
-  # Export the cohort-wide .igBlast_statistics file
-  df_cohort.to_csv(cohort_dir + 'cohortWide_analysis/' + config['cohort'] + '_' + config['cellType'] + '_' + chainType_shortHand + \
-                   '_uniqueSeqs' + '.igBlast_statistics', index=False, sep=';')
+  # Export the cohort-wide .csv and .igBlast_statistics files
+  df_cohort[['seq_ID','seq_nt']].to_csv(cohort_dir + 'cohortWide_analysis/' + config['cohort'] + '_' + config['cellType'] + '_' + chainType_shortHand + '_uniqueSeqs.csv', index=False, sep=';')
+  df_cohort.to_csv(cohort_dir + 'cohortWide_analysis/' + config['cohort'] + '_' + config['cellType'] + '_' + chainType_shortHand + '_uniqueSeqs.igBlast_statistics', index=False, sep=';')
 
   for filterOutHyperIndels in [False,True]:
     for trimEdges in [False,True]:

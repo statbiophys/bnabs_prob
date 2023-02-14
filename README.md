@@ -1,8 +1,18 @@
 # bnabs_prob
 
-### Cosimo Lupo &#169; 2018-2023
+##### Cosimo Lupo &#169; 2018-2023
+
+##### License
+
+Free use of the present code is granted under the terms of the [GNU General Public License version 3](https://www.gnu.org/licenses/quick-guide-gplv3.html) (GPLv3).
+
+##### Contacts
+
+For any issue, question or bug, please write [us](mailto:cosimo.lupo89@gmail.com) an email.
 
 ---
+
+### Summary
 
 The present code, companion of the manuscript *"Determining probabilities of HIV-1 bNAb development in healthy and chronically infected individuals"*, is conceptually divided in two sections:
 
@@ -12,7 +22,15 @@ The present code, companion of the manuscript *"Determining probabilities of HIV
 
 Test datasets of 5'000 BCR heavy- and light-chain sequences for an healthy donor are provided under `ig/healthy_IgG`, allowing to directly run the present code. Under `bnabs/sequences`, instead, we provided heavy- and light-chain sequences for the bnabs analyzed in the manuscript, together with a summary of their features relevant for the present analysis (e.g. their neutralization breadth). Some IGoR models, inferred on the whole cohort of healthy patients, are also provided under the folder `templates/igor_models`, again for testing purposes.
 
-All the scripts, written in Python3, can hence be run with the attached test datasets. However, they rely on a local installation of igBlast and IGoR softwares. Expand the sections below for installation and configuration details. V(D)J templates for igBlast and standard IGoR models are also shipped with this code, under the folder `templates`.
+All the scripts, written in Python3, can hence be run with the attached test datasets. However, they rely on a local installation of **igBlast** and **IGoR** softwares. Expand the sections below for installation and configuration details. V(D)J templates for igBlast and standard IGoR models are also shipped with this code, under the folder `templates`.
+
+Finally, though most of the Python packages used in the scripts are quite common (e.g. `numpy` or `pandas`), some others are less frequent and could not be alredy present in standard Python3 distributions. It can be the case for the following packages:
+
+- [biopython](https://pypi.org/project/biopython/)
+- [PyYAML](https://pypi.org/project/PyYAML/)
+- [pandarallel](https://pypi.org/project/pandarallel/)
+
+that can be pip-installed as usual.
 
 ---
 
@@ -34,7 +52,11 @@ Go to the webpage:
 [https://www.ncbi.nlm.nih.gov/books/NBK279671/](https://www.ncbi.nlm.nih.gov/books/NBK279671/)
 and follow the instructions. It is needed for eg building the database afterwards. A better guide can be found at: [https://ncbi.github.io/igblast/](https://ncbi.github.io/igblast/) (recommended).
 
-Unwrap the tar.gz file through the command: `tar xvzf file_name`
+Unwrap the tar.gz file through the command:
+
+```
+tar xvzf file_name
+```
 
 ##### Installation of igBlast
 
@@ -42,9 +64,17 @@ Go to the webpage:
 [https://ncbi.github.io/igblast/cook/How-to-set-up.html](https://ncbi.github.io/igblast/cook/How-to-set-up.html)
 for the main instructions.
 
-Unwrap the `.tar.gz` file through the command: `tar xvzf file_name`
+Unwrap the `.tar.gz` file through the command:
 
-Change the permissions to directories and files downloaded, through the command: `chmod -R u+rw *`
+```
+tar xvzf file_name
+```
+
+Change the permissions to directories and files downloaded, through the command:
+
+```
+chmod -R u+rw *
+```
 
 ##### Setting paths
 
@@ -110,7 +140,9 @@ There are two main scripts, `launch_annotation.py` and `launch_igor.py`, respect
 
 The **annotation** step can be invoked as:
 
-`python3 launch_annotation.py`
+```
+python3 launch_annotation.py
+```
 
 with settings fully customizable from the `config_annotation.yaml` file. The user can modify the path of input data, choose the type of chain (heavy, kappa or lambda) and the cohort such data come from, and also if a certain step of the script has to be run or not (e.g., the user can choose to run only the core of igBlast annotation, leaving the parsing of igBlast intermediate output for later).
 
@@ -123,7 +155,9 @@ Both kinds of files are produced separately for each donor, and at the cohort le
 
 The **IGoR evaluation/inference** step, launched through the command:
 
-`python3 launch_igor.py`
+```
+python3 launch_igor.py
+```
 
 is again fully customizable from the `config_igor.yaml` file (e.g., the user can choose to run only the alignment step, leaving the inference or the final evaluation for later).
 
@@ -139,7 +173,9 @@ In this section, for each bnab are reported the heavy- and light-chain sequences
 
 Though already annotated, they can be re-annotated through the command:
 
-`python3 launch_annotation.py`
+```
+python3 launch_annotation.py
+```
 
 in order to extract annotation results in the desired format and to prepare `.csv` and `.fasta` files for the following IGoR evaluation step. Again, through the `config_annotation.yaml` file, the user can customize the path of the input file, choose the type of chain to be analyzed, and so on.
 

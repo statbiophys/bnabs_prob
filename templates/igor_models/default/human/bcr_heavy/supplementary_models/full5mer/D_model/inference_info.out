@@ -1,0 +1,13 @@
+Date: Thu Sep  7 18:28:14 2017
+
+Max #iterations to be performed: 6
+Path: /users/marcou/PhD/bcr_harlan/memory_non_coding/alignments/MEMORY_06-Blank-M_001-025//run_full5mer_d_5_30000/
+First iter fast(only best V and best J considered): 0
+Min Likelihood threshold: 1e-70
+Viterbi like (only keeps the best scenario): 0
+Proba threshold ratio: 1e-05	#(ratio between best scenario and current scenario needed to explore/count the scenario)
+Mean #errors threshold: inf	#Needs a very good reason to be set to another value than INFINITY
+
+List of updated events: 
+List of fixed events: GeneChoice_V_gene_Undefined_side_prio8_size97	GeneChoice_D_gene_Undefined_side_prio6_size35	GeneChoice_J_gene_Undefined_side_prio7_size7	Deletion_V_gene_Three_prime_prio5_size27	Deletion_D_gene_Three_prime_prio6_size44	Deletion_D_gene_Five_prime_prio6_size44	Deletion_J_gene_Five_prime_prio5_size27	Insertion_VD_genes_Undefined_side_prio3_size61	Insertion_DJ_gene_Undefined_side_prio2_size61	DinucMarkov_VD_genes_Undefined_side_prio3_size16	DinucMarkov_DJ_gene_Undefined_side_prio2_size16	
+Error model updated: 1

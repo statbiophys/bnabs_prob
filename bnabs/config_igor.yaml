@@ -6,7 +6,7 @@ input_dir: "./sequences/"
 #input_file_prefix: "all_new_bnabs_seqs"
 input_file_prefix: "bnabs_seqs"
 #model_dir: "/home/lupo/BCR_Klein_data/IGoR_models/"
-model_dir: "./../templates/igor_models/"
+model_dir: "./../templates/igor_models/inferred/"
 
 # Database specs (quality filters included - referred to bnabs to analyze)
 species: "human"

@@ -2,9 +2,12 @@
 
 # Database specs
 species: "human"
+# Type of cell (can be "IgM" or "IgG")
 cellType: "IgG"
+# Type of chain (can be "HC", "KC" or "LC")
 chainType: "HC"
-cohort: "healthy"
+# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv']; for other possible regroupings of donors, please check the script '')
+cohort: "healthy_control"
 produc: "P"
 
 # SHM reference model. Can be chosen among:
@@ -23,10 +26,13 @@ edges_trimmed: True
 n_l: 27
 n_r: 3
 
-wkdir: "./"
+wk_dir: "./"
+input_dir: "./datasets/"
+final_template_dir: "./../templates/igor_models/inferred/"
 
 # IGoR root
 mainIgorDir: "/home/lupo/IGoR/igor_1-4-1/"
+defaultIgorTemplates: "./../templates/igor_models/default/"
 
 # IGoR main steps (order is fixed, but single steps can be executed or not)
 modelConstruction: False
@@ -36,6 +42,9 @@ filter: False
 inferGenModel: True
 evalGenModel: True
 generateSeqs: False
+
+# Gathering together igBlast and IGoR results for ig
+igAnalysisFinalSummary: True
 
 # main flags
 initInferBySHMindip: False
