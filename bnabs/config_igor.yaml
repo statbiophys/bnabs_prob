@@ -1,60 +1,58 @@
 # Config file for IGoR wrapper (launch_igor.py script)
 
-wkdir: "./"
+wk_dir: "./"
 #inputdir: "/home/lupo/bnabs_Klein/latest_bnabs_list"
 input_dir: "./sequences/"
 #input_file_prefix: "all_new_bnabs_seqs"
 input_file_prefix: "bnabs_seqs"
-#model_dir: "/home/lupo/BCR_Klein_data/IGoR_models/"
-model_dir: "./../templates/igor_models/inferred/"
 
 # Database specs (quality filters included - referred to bnabs to analyze)
 species: "human"
 chainType: "HC"
 filter_by_indels: True
 edges_trimmed: True
-n_l: 3
+n_l: 27
 n_r: 3
 
 # Model specs (some quality filters included - referred to IGoR models to use for evaluating bnabs)
 UMI_thr: 3
-# If a single model has to be loaded
+# If a single model has to be loaded for bnabs evaluation
 singleModel: True
-cohort: "healthy_all"
-produc: "cohortWide_P"
+produc: "standard_NP"
+cohort: "healthy_control"
 SHMmodel: "full5mer"
 # Otherwise, the dataset can be evaluated according to a set of different models
 # Undesired items in the following lists can be commented out:
 producs:
-  - "standard"
+  - "standard_NP"
   - "cohortWide_NP"
   - "cohortWide_P"
+# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv']; for further possible stratifications of the 'hiv1' cohort, please check the README file or the manuscript)
 cohorts:
-  - "healthy"
-  - "hiv1_viremic"
-  - "hiv1_on_art"
+  - "healthy_control"
+  - "hiv1"
   - "hcv"
-  - "hiv1_top"
-  - "healthy_topControl"
-  - "healthy_all"
-  - "hiv1_all"
-  - "hiv1_non_neutralizers"
-  - "hiv1_weak_neutralizers"
-  - "hiv1_intermediate_neutralizers"
-  - "hiv1_top_neutralizers"
-  - "hiv1_ART_OFF"
-  - "hiv1_ART_ON"
+#  - "hiv1_non_neutralizers"
+#  - "hiv1_weak_neutralizers"
+#  - "hiv1_intermediate_neutralizers"
+#  - "hiv1_top_neutralizers"
+#  - "hiv1_ART_OFF"
+#  - "hiv1_ART_ON"
 SHMmodels:
   - "add5mer"
   - "full5mer"
 
-# IGoR root
-mainIgorDir: "/home/lupo/IGoR/igor_1-4-1/"
+# IGoR paths
+igorExec: "/home/lupo/IGoR/igor_1-4-1/igor_src/igor"
+#igorExec: "igor"
+defaultIgorTemplates: "./../templates/igor_models/default/"
+#inferredIgorTemplates: "/home/lupo/BCR_Klein_data/IGoR_models/"
+inferredIgorTemplates: "./../templates/igor_models/inferred/"
 
 # IGoR main steps (order is fixed, but single steps can be executed or not)
-seqRead: False
-alignment: False
-evalGenModel: False
+seqRead: True
+alignment: True
+evalGenModel: True
 
 # Gathering together igBlast and IGoR results for bnabs
 bnabAnalysisFinalSummary: True

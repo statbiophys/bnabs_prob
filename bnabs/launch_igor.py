@@ -20,12 +20,21 @@ from aux_funcs_igor import get_CDR3_len, get_family, parse_hyper_indels
 with open('config_igor.yaml') as config_file:
   config = yaml.full_load(config_file)
 
-wkdir = os.path.abspath(config['wkdir'])
-if wkdir[-1] != '/':
-  wkdir += '/'
+wk_dir = os.path.abspath(config['wk_dir'])
+if wk_dir[-1] != '/':
+  wk_dir += '/'
+
 input_dir = os.path.abspath(config['input_dir'])
 if input_dir[-1] != '/':
   input_dir += '/'
+
+defaultIgorTemplates = os.path.abspath(config['defaultIgorTemplates'])
+if defaultIgorTemplates[-1] != '/':
+  defaultIgorTemplates += '/'
+
+inferredIgorTemplates = os.path.abspath(config['inferredIgorTemplates'])
+if inferredIgorTemplates[-1] != '/':
+  inferredIgorTemplates += '/'
 
 # Project specs
 
@@ -36,8 +45,8 @@ if config['edges_trimmed']:
   seq_file += '_trimmed_' + str(config['n_l']) + '_' + str(config['n_r'])
 seq_file += '.fasta'
 
-template_path = config['mainIgorDir'] + "models/" + config['species'] + "/"
-model_path = config['mainIgorDir']  + "models/" + config['species'] + "/"
+template_path = defaultIgorTemplates + config['species'] + "/"
+model_path = defaultIgorTemplates + config['species'] + "/"
 if config['chainType']=="HC":
   template_path += "bcr_heavy/ref_genome/"
   model_path += "bcr_heavy/"
@@ -71,10 +80,10 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
   
   out_dir = input_dir + "igor_"
   
-  if produc=="standard":
-    out_dir += "standard_" + config['chainType'] + "_NP_SHM" + SHMmodel + "/"
+  if produc=="standard_NP":
+    out_dir += "standard_" + config['chainType'] + "_NP_SHMindip" + "/"
   else:
-    model_path = config['model_dir'] + cohort + "_IgG_" + config['chainType'] + "_uniqueSeqs_"
+    model_path = inferredIgorTemplates + cohort + "_IgG_" + config['chainType'] + "_uniqueSeqs_"
     out_dir += "cohortWide_" + cohort + "_" + config['chainType'] + "_"
     if produc=="cohortWide_NP":
       model_path += "NP"
@@ -111,7 +120,7 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     print("# Seq Read")
     
-    runcmd = config['mainIgorDir'] + "igor_src/igor"
+    runcmd = config['igorExec']
     runcmd += " -set_wd " + out_dir
     runcmd += " -threads " + str(config['N_cores'])
     #runcmd += " -batch " + batchname
@@ -127,11 +136,11 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     print("# Alignment")
     
-    runcmd = config['mainIgorDir'] + "igor_src/igor"
+    runcmd = config['igorExec']
     runcmd += " -set_wd " + out_dir
     runcmd += " -threads " + str(config['N_cores'])
     #runcmd += " -batch " + batchname
-    if produc=="standard":
+    if produc=="standard_NP":
       runcmd += " -species human -chain " + igor_chain_name
     else:
       runcmd += " -set_genomic --V " + genomicV
@@ -162,11 +171,11 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     print("# Evaluate Generative Model")
     
-    runcmd = config['mainIgorDir'] + "igor_src/igor"
+    runcmd = config['igorExec']
     runcmd += " -set_wd " + out_dir
     runcmd += " -threads " + str(config['N_cores'])
     #runcmd += " -batch " + batchname
-    if produc=="standard":
+    if produc=="standard_NP":
       runcmd += " -species human -chain " + igor_chain_name
     else:
       runcmd += " -set_genomic --V " + genomicV
@@ -186,8 +195,12 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
   ################################ GATHER IGBLAST + IGOR ANALYSIS TOGETHER ########################################
   
   if config['bnabAnalysisFinalSummary']:
-    
+
     print("# Gather igBlast and IGoR analysis together")
+
+    if (not os.path.exists(out_dir + 'evaluate/final_parms.txt')) or (not os.path.exists(out_dir + 'evaluate/final_marginals.txt')):
+      print("\n" + " ### Attention! Any of IGoR evaluate final files is not present! ### " + "\n")
+
     
     ##### bnabs seqs import #####
     
@@ -357,14 +370,14 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     #                    'align_end_gene','igBlast_score','N_of_hyperindels','hyperindel_3prime_type','hyperindel_5prime_type',\
     #                    'inter_hyperindels_spacing','hyperindel_3prime_length','hyperindel_5prime_length'];
     
-    #igBlast_gaps_correlations = pd.read_csv(wkdir + "all_bnabs_seqs.gaps_correlations", sep='\s+', header=None, names=key_correlations, low_memory=False, keep_default_na=False);
+    #igBlast_gaps_correlations = pd.read_csv(wk_dir + "all_bnabs_seqs.gaps_correlations", sep='\s+', header=None, names=key_correlations, low_memory=False, keep_default_na=False);
     
     # inserire qui info da gaps correlations
     
     
     ##### IGoR seqs indexing #####
     
-    #IGoR_indexing = pd.read_csv(wkdir + sub_dir + "aligns/" + "indexed_sequences.csv", sep=";")
+    #IGoR_indexing = pd.read_csv(wk_dir + sub_dir + "aligns/" + "indexed_sequences.csv", sep=";")
     #IGoR_indexing['seq_index'] = IGoR_indexing['seq_index'].astype(int)
     
     in_file = out_dir + "aligns/" + "indexed_sequences.csv"
@@ -483,14 +496,14 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     ##### IGoR output #####
     
     in_file = out_dir + "output/" + "Pgen_counts.csv"
-    #IGoR_Pgen = pd.read_csv(wkdir + "all_bnabs_output/" + "Pgen_counts.csv", sep=";")
+    #IGoR_Pgen = pd.read_csv(wk_dir + "all_bnabs_output/" + "Pgen_counts.csv", sep=";")
     IGoR_noHyperIndels_Pgen = pd.read_csv(in_file, sep=";")
     
     #main_df['IGoR_Pgen'] = main_df['IGoR_seq_index'].map(IGoR_Pgen.set_index('seq_index')['Pgen_estimate'])
     main_df['IGoR_noHyperIndels_Pgen'] = main_df['IGoR_noHyperIndels_seq_index'].map(IGoR_noHyperIndels_Pgen.set_index('seq_index')['Pgen_estimate'])
     
     in_file = out_dir + "output/" + "best_scenarios_counts.csv"
-    #IGoR_BestScen = pd.read_csv(wkdir + "all_bnabs_output/" + "best_scenarios_counts.csv", sep=";")
+    #IGoR_BestScen = pd.read_csv(wk_dir + "all_bnabs_output/" + "best_scenarios_counts.csv", sep=";")
     IGoR_noHyperIndels_BestScen = pd.read_csv(in_file, sep=";")
     
     #IGoR_BestScen = IGoR_BestScen.query('scenario_rank==1')
@@ -513,7 +526,7 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     ##### IGoR evaluation #####
     
     in_file = out_dir + "evaluate/" + "inference_logs.txt"
-    #IGoR_evaluate = pd.read_csv(wkdir + "all_bnabs_evaluate/" + "inference_logs.txt", sep=";")
+    #IGoR_evaluate = pd.read_csv(wk_dir + "all_bnabs_evaluate/" + "inference_logs.txt", sep=";")
     IGoR_noHyperIndels_evaluate = pd.read_csv(in_file, sep=";")
     
     #main_df['IGoR_seq_likelihood'] = main_df['IGoR_seq_index'].map(IGoR_evaluate.set_index('seq_index')['seq_likelihood'])
@@ -542,8 +555,8 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     main_df.to_csv(out_file, index=False, sep=';')
     
     # old name of this sub-folder: IGoR_analysis
-    if not os.path.isdir(wkdir + 'igor_bnabs_summary'):
-      os.mkdir(wkdir + 'igor_bnabs_summary')
+    if not os.path.isdir(wk_dir + 'igor_bnabs_summary'):
+      os.mkdir(wk_dir + 'igor_bnabs_summary')
     
-    out_file = wkdir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
+    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
     main_df.to_csv(out_file, index=False, sep=';')

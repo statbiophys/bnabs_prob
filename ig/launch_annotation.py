@@ -13,7 +13,6 @@ import os
 import sys
 import shutil
 import multiprocessing as mp
-from pandarallel import pandarallel
 pd.set_option('display.max_columns',100)
 from scipy.stats import poisson
 from scipy.stats import binom
@@ -42,11 +41,6 @@ if wk_dir[-1] != '/':
 input_dir = os.path.abspath(config['input_dir'])
 if input_dir[-1] != '/':
   input_dir += '/'
-#outdir = os.path.abspath(config['outdir'])
-#if outdir[-1] != '/':
-#  outdir += '/'
-#if not os.path.exists(outdir):
-#  os.makedirs(outdir)
 
 cohort_dir = input_dir + config['cohort'] + '_' + config['cellType'] + '/'
 sample_dirs = glob.glob(cohort_dir + 'BZR*')
@@ -61,44 +55,44 @@ print('\n' + '\033[1m' + " ***** Pre-processing, annotation through igBlast and 
 # Step 1: check which format seqs have to be read and (if needed) produce the other format
 
 if config['preProcessFiles']:
-  
+
   print("\nStep 1: check which format seqs have to be read and (if needed) produce the other format")
 
   sample_dirs.sort(key=natural_keys)
   for i,sample_dir in enumerate(sample_dirs):
-    
+
     sample = sample_dir.split('/')[-1]
     print("    sample: " + sample + "  [" + config['cohort'] + " " + config['cellType'] + " " + config['chainType'] + "]")
     filenames = []
-    
+
     # check csv
     csv_files = glob.glob(sample_dir + '/' + '*' + chainType_shortHand + '.csv')
     if(len(csv_files)>0):
       for j,fullfilename in enumerate(csv_files):
         filename = fullfilename.split('/')[-1].split('.')[0]
         filenames.append(filename)
-  
+
     # check fasta
     fasta_files = glob.glob(sample_dir + '/' + '*' + chainType_shortHand + '.fasta')
     if(len(fasta_files)>0):
       for j,fullfilename in enumerate(fasta_files):
         filename = fullfilename.split('/')[-1].split('.')[0]
         filenames.append(filename)
-    
+
     # make unique
     filenames = list(set(filenames))
     filenames.sort(key=natural_keys)
-    
+
     # produce the missing format (if any)
     for i,filename in enumerate(filenames):
       fullfilename = sample_dir + '/' + filename
-      
+
       if(os.path.isfile(fullfilename + '.csv')==True and os.path.isfile(fullfilename + '.fasta')==False):
         try:
           make_fasta_from_csv(fullfilename + '.csv', headers=True, sep=';')
         except BaseException as err:
           print(err)
-        
+
       elif(os.path.isfile(fullfilename + '.csv')==False and os.path.isfile(fullfilename + '.fasta')==True):
         try:
           make_csv_from_fasta(fullfilename + '.fasta', headers=['seq_ID','raw_seq_nt'], sep=';')
@@ -108,9 +102,9 @@ if config['preProcessFiles']:
 # Step 2: run igBlast
 
 if config['runIgBlast']:
-  
+
   print("\nStep 2: run igBlast")
-  
+
   sample_dirs.sort(key=natural_keys)
   for i,sample_dir in enumerate(sample_dirs):
     sample = sample_dir.split('/')[-1]
@@ -121,7 +115,7 @@ if config['runIgBlast']:
       for j,fullfilename in enumerate(fasta_files):
         in_file = fullfilename.split('.')[0] + '.fasta'
         out_file = fullfilename.split('.')[0] + '.igBlast_raw_output'
-        
+
         t1 = datetime.datetime.now()
         try:
           run_igBlast(in_file, config['species'], config['chainType'])
@@ -129,11 +123,11 @@ if config['runIgBlast']:
           print(err)
         t2 = datetime.datetime.now()
         print('        igBlast running time:', t2-t1)
-        
+
 # Step 3: parse the raw output from igBlast
 
 if config['parseIgBlast']:
-  
+
   print("\nStep 3: parse the raw output from igBlast")
 
   sample_dirs.sort(key=natural_keys)
@@ -148,20 +142,20 @@ if config['parseIgBlast']:
         out_file = fullfilename.split('.')[0] + '.igBlast_statistics'
 
         t1 = datetime.datetime.now()
-        
+
         try:
           df = parse_igBlast(in_file, config['chainType'], requireJ=True)
         except BaseException as err:
           print(err)
-        
+
         # UMI counts
         df['UMI_counts'] = df['seq_ID'].apply(lambda x: int(x.split(':')[3][1:]))
-        
+
         # Quality filtering
         df = df[df['V_best_align_length_beforeCDR3']>=config['V_min_len']]    # V gene should align at least for V_min_len nt
         df = df[df['strand']=="+"]    # Only sequences read in the correct direction
         #df = df[df['UMI_counts']>config['UMI_thr']]    # Only UMIs counted at least UMI_thr times
-        
+
         # mapping of nt sequences through IDs (included primers and C segment, if any)
         seqs_file = fullfilename.split('.')[0] + '.csv'
         raw_seqs = pd.read_csv(seqs_file, sep=';', low_memory=False, keep_default_na=True, index_col=False)
@@ -176,7 +170,7 @@ if config['parseIgBlast']:
         counts.rename(columns={'seq_ID': 'seq_nt_counts'}, inplace=True)
         df['seq_nt_counts'] = df['seq_nt'].map(counts.set_index('seq_nt')['seq_nt_counts'])
         df = df.drop_duplicates(subset=['seq_nt'],keep='first')    # Drop seq_nt duplicates
-        
+
         # Reconstruct gapped query and germlines (useful for Natanael's trees)
         '''
         if(config['chainType']=="heavy"):
@@ -205,7 +199,7 @@ if config['parseIgBlast']:
         df['temp'] = df.apply(lambda row: reconstruct_gapped_seqs(row), axis=1)
         df['gapped_query'] = df['temp'].apply(lambda x: x.split(';')[0])
         df['gapped_germline'] = df['temp'].apply(lambda x: x.split(';')[1])
-        
+
         # Revert indels in the sequence
         df['reverted_seq_nt'] = df.apply(lambda row: revert_seq(row), axis=1)
 
@@ -222,27 +216,27 @@ if config['parseIgBlast']:
 # Step 4: sort NP-P into new files and gather cohortwide data
 
 if config['sortAndCohort']:
-  
+
   print("\nStep 4: sort NP-P into new files and gather cohortwide data")
-  
-  
+
+
   # Check if the cohort-wide already exists (otherwise create it)
   if not os.path.exists(cohort_dir + 'cohortWide_analysis'):
     os.makedirs(cohort_dir + 'cohortWide_analysis')
-  
+
 
   ##### gathering together initial sequences #####
-  
+
   df_cohort = pd.DataFrame();
-  
+
   sample_dirs.sort(key=natural_keys)
   for i,sample_dir in enumerate(sample_dirs):
-    
+
     sample = sample_dir.split('/')[-1]
-    
+
     seqs_files = glob.glob(sample_dir + '/' + '*' + chainType_shortHand + '.csv')
     seqs_files.sort(key=natural_keys)
-    
+
     if(len(seqs_files)>0):
       for j,fullfilename in enumerate(seqs_files):
         in_file = fullfilename.split('.')[0] + '.csv'
@@ -250,7 +244,7 @@ if config['sortAndCohort']:
 
         # Append to the cohort dataframe
         df_cohort = pd.concat([df_cohort,df]).reset_index(drop=True)
-  
+
   # df_cohort headers: seq_ID ; raw_seq_nt
   # df_cohort contains some raw_seq_nt duplicates coming from different individuals (but they are very few)
   # So we drop duplicates, taking the unique raw_seq_nt from the first individual in the list
@@ -258,8 +252,8 @@ if config['sortAndCohort']:
 
   # Write the cohort-wide .csv file with all the sequences together
   df_cohort.to_csv(cohort_dir + 'cohortWide_analysis/' + config['cohort'] + '_' + config['cellType'] + '_' + chainType_shortHand + '.csv', index=False, sep=';')
-  
-  
+
+
   ##### gathering together .igBlast_statistics files and then sorting sequences #####
 
   df_cohort = pd.DataFrame();
@@ -272,31 +266,31 @@ if config['sortAndCohort']:
 
     igBlast_statistics_files = glob.glob(sample_dir + '/' + '*' + chainType_shortHand + '.igBlast_statistics')
     igBlast_statistics_files.sort(key=natural_keys)
-    
+
     if(len(igBlast_statistics_files)>0):
       for j,fullfilename in enumerate(igBlast_statistics_files):
         in_file = fullfilename.split('.')[0] + '.igBlast_statistics'
-        
+
         # Open .igBlast_statistics files
         df = pd.read_csv(in_file, sep=';', low_memory=False, keep_default_na=True, index_col=False)
         df['cohort'] = config['cohort']
         df['cellType'] = config['cellType']
         df['sample'] = sample
-        
+
         # Drop duplicate sequences
         df = df.drop_duplicates(subset=['seq_nt'],keep='first').reset_index(drop=True)    # Drop seq_nt duplicates
-        
+
         # Trim sequences at the two edges
         df['trimmed_seq_nt'] = df['seq_nt'].apply(lambda x: x[config['n_l']:-config['n_r']])
-        
+
         # Keep only sequences above UMI count threshold
         if config['UMIfilter']:
           df = df[df['UMI_counts']>=config['UMI_thr']]
-            
+
         # Keep only sequences with annotated CDR3
         if config['onlyAnnotatedCDR3']:
           df = df.query('CDR3_nt==CDR3_nt')
-        
+
         # Append to the cohort dataframe
         df_cohort = pd.concat([df_cohort,df]).reset_index(drop=True)
 
@@ -312,7 +306,7 @@ if config['sortAndCohort']:
             #df_NP = df.loc[(df['V_J_frame']=="Out-of-frame") | (df['stop_codon_CDR3']=="Yes")]
             df_NP = df[df['V_J_frame']=="Out-of-frame"]
             df_P = df[(df['V_J_frame']=="In-frame") & (df['stop_codon_CDR3']=="No")]
-          
+
             # Export sequences on file
             out_file_NP = fullfilename.split('.')[0] + '_uniqueSeqs_NP'
             out_file_P = fullfilename.split('.')[0] + '_uniqueSeqs_P'
@@ -336,11 +330,11 @@ if config['sortAndCohort']:
               out_file_P += '_noHyperIndels'
               df_NP = df_NP.query('N_indels==0')
               df_P = df_P.query('N_indels==0')
-            
+
             # Write csv
             df_NP[['seq_ID','seq_nt']].to_csv(out_file_NP + '.csv', index=False, sep=';')
             df_P[['seq_ID','seq_nt']].to_csv(out_file_P + '.csv', index=False, sep=';')
-            
+
             # Write fasta
             ofile = open(out_file_NP + '.fasta', "w")
             for ii in range(len(df_NP)):
@@ -350,18 +344,18 @@ if config['sortAndCohort']:
             for ii in range(len(df_P)):
               ofile.write(">" + df_P.iloc[ii,0] + "\n" + df_P.iloc[ii,1] + "\n")
             ofile.close()
-            
+
             if(filterOutHyperIndels==False and trimEdges==False):
-              
+
               # Formatted csv for indels software
               # When numbering starting from 0:
               #  - initial position is given by 'start' index - 1
               #  - final position (not included) is given by 'end' index, so that last included is given by 'end' index - 1
-              
+
               anchored_subset_size = 100000
-              
+
               for produc in ['NP','P']:
-                
+
                 out_file = (out_file_NP if (produc == 'NP') else out_file_P)
                 out_file += '_anchored.csv'
                 out_f = open(out_file, "w")
@@ -370,7 +364,7 @@ if config['sortAndCohort']:
                 for r,row in df2.iterrows():
                   out_f.write(write_anchored_seqs(row) + "\n")
                 out_f.close()
-                
+
                 if(len(df2)>anchored_subset_size):
                   out_file = (out_file_NP if (produc == 'NP') else out_file_P)
                   out_file += '_anchored_subset100K.csv'
@@ -380,7 +374,7 @@ if config['sortAndCohort']:
                   for r,row in df2.iterrows():
                     out_f.write(write_anchored_seqs(row) + "\n")
                   out_f.close()
-  
+
   # Export the cohort-wide .csv and .igBlast_statistics files
   df_cohort[['seq_ID','seq_nt']].to_csv(cohort_dir + 'cohortWide_analysis/' + config['cohort'] + '_' + config['cellType'] + '_' + chainType_shortHand + '_uniqueSeqs.csv', index=False, sep=';')
   df_cohort.to_csv(cohort_dir + 'cohortWide_analysis/' + config['cohort'] + '_' + config['cellType'] + '_' + chainType_shortHand + '_uniqueSeqs.igBlast_statistics', index=False, sep=';')
@@ -419,11 +413,11 @@ if config['sortAndCohort']:
         out_file_NP += '_noHyperIndels'
         out_file_P += '_noHyperIndels'
         df_cohort = df_cohort.query('N_indels==0')
-        
+
       # Write csv
       df_cohort_NP.to_csv(out_file_NP + '.csv', index=False, sep=';')
       df_cohort_P.to_csv(out_file_P + '.csv', index=False, sep=';')
-      
+
       # Write fasta
       ofile = open(out_file_NP + '.fasta', "w")
       for ii in range(len(df_cohort_NP)):
@@ -433,18 +427,18 @@ if config['sortAndCohort']:
       for ii in range(len(df_cohort_P)):
         ofile.write(">" + df_cohort_P.iloc[ii,0] + "\n" + df_cohort_P.iloc[ii,1] + "\n")
       ofile.close()
-      
+
       if(filterOutHyperIndels==False and trimEdges==False):
-        
+
         # Formatted csv for indels software
         # When numbering starting from 0:
         #  - initial position is given by 'start' index - 1
         #  - final position (not included) is given by 'end' index, so that last included is given by 'end' index - 1
-        
+
         anchored_subset_size = 100000
-        
+
         for produc in ['NP','P']:
-          
+
           out_file = (out_file_NP if (produc == 'NP') else out_file_P)
           out_file += '_anchored.csv'
           out_f = open(out_file, "w")
@@ -453,7 +447,7 @@ if config['sortAndCohort']:
           for r,row in df2.iterrows():
             out_f.write(write_anchored_seqs(row) + "\n")
           out_f.close()
-          
+
           if(len(df2)>anchored_subset_size):
             out_file = (out_file_NP if (produc == 'NP') else out_file_P)
             out_file += '_anchored_subset100K.csv'

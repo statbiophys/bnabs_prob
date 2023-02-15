@@ -21,13 +21,13 @@ input_dir = os.path.abspath(config['input_dir'])
 if input_dir[-1] != '/':
   input_dir += '/'
 
-final_template_dir = os.path.abspath(config['final_template_dir'])
-if final_template_dir[-1] != '/':
-  final_template_dir += '/'
-
 defaultIgorTemplates = os.path.abspath(config['defaultIgorTemplates'])
 if defaultIgorTemplates[-1] != '/':
   defaultIgorTemplates += '/'
+
+inferredIgorTemplates = os.path.abspath(config['inferredIgorTemplates'])
+if inferredIgorTemplates[-1] != '/':
+  inferredIgorTemplates += '/'
 
 if config['SHMmodel'] not in ["none","default","indip","add5mer","full5mer"]:
   print("Wrong SHM model! Please choose among ['none','default','indip','add5mer','full5mer']")
@@ -76,7 +76,7 @@ if config['modelConstruction']:
 
   print("# Model Construction")
 
-  runcmd = config['mainIgorDir'] + "igor_src/igor"
+  runcmd = config['igorExec']
   runcmd += " -set_wd " + out_dir
   runcmd += " -threads " + str(config['N_cores'])
   #runcmd += " -batch " + batchname
@@ -94,7 +94,7 @@ if config['seqRead']:
   print("# Seq Read")
 
   # build line command
-  runcmd = config['mainIgorDir'] + "igor_src/igor"
+  runcmd = config['igorExec']
   runcmd += " -set_wd " + out_dir
   runcmd += " -threads " + str(config['N_cores'])
   #runcmd += " -batch " + batchname
@@ -110,7 +110,7 @@ if config['alignment']:
 
   print("# Alignment")
 
-  runcmd = config['mainIgorDir'] + "igor_src/igor"
+  runcmd = config['igorExec']
   runcmd += " -set_wd " + out_dir
   runcmd += " -threads " + str(config['N_cores'])
   #runcmd += " -batch " + batchname
@@ -169,7 +169,7 @@ if config['inferGenModel']:
 
   print("# Infer Generative Model")
 
-  runcmd = config['mainIgorDir'] + "igor_src/igor"
+  runcmd = config['igorExec']
   runcmd += " -set_wd " + out_dir
   runcmd += " -threads " + str(config['N_cores'])
   #runcmd += " -batch " + batchname
@@ -207,11 +207,11 @@ if config['inferGenModel']:
 
   # Store the inferred model under 'templates' folder
 
-  runcmd = "mkdir -p " + final_template_dir + prefix + "_SHM" + config['SHMmodel'] + "/"
+  runcmd = "mkdir -p " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
   runcmd += "; "
-  runcmd += "cp " + out_dir + "inference/final_parms.txt" + " " + final_template_dir + prefix + "_SHM" + config['SHMmodel'] + "/"
+  runcmd += "cp " + out_dir + "inference/final_parms.txt" + " " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
   runcmd += "; "
-  runcmd += "cp " + out_dir + "inference/final_marginals.txt" + " " + final_template_dir + prefix + "_SHM" + config['SHMmodel'] + "/"
+  runcmd += "cp " + out_dir + "inference/final_marginals.txt" + " " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
 
   os.system(runcmd)
 
@@ -221,7 +221,7 @@ if config['evalGenModel']:
 
   print("# Evaluate Generative Model")
 
-  runcmd = config['mainIgorDir'] + "igor_src/igor"
+  runcmd = config['igorExec']
   runcmd += " -set_wd " + out_dir
   runcmd += " -threads " + str(config['N_cores'])
   #runcmd += " -batch " + batchname
@@ -268,7 +268,7 @@ if config['generateSeqs']:
 
   print("# Generate Seqs")
 
-  runcmd = config['mainIgorDir'] + "igor_src/igor"
+  runcmd = config['igorExec']
   runcmd += " -set_wd " + out_dir
   runcmd += " -threads " + str(config['N_cores'])
   #runcmd += " -batch " + batchname
@@ -456,6 +456,6 @@ if config['igAnalysisFinalSummary']:
   main_df.drop(['igBlast_seq_ID'], axis=1, inplace=True)
 
   # Export the final dataframe
-  out_file = input_dir + config['cohort'] + "_" + config['cellType'] + "/cohortWide_analysis/" + prefix + ".IGoR_summary"
+  out_file = input_dir + config['cohort'] + "_" + config['cellType'] + "/cohortWide_analysis/" + prefix + "_SHM" + config['SHMmodel'] + ".IGoR_summary"
 
   main_df.to_csv(out_file, sep=';', index=False)

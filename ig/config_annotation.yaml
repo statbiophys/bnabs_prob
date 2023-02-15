@@ -3,7 +3,10 @@
 # General specs (relative paths are supported)
 wk_dir: "./"
 input_dir: "./datasets/"
-#outdir: "./output/"
+
+# igBlast paths
+#igBlastExec: "/home/lupo/igBlast/ncbi-igblast-1.13.0/bin/igblastn"
+igBlastExec: "igblastn"
 #blast_database: "/home/lupo/igBlast/blast_database/"
 blast_database: "./../templates/"
 
@@ -28,7 +31,7 @@ cellType: "IgG"
 # Type of chain (can be "heavy", "kappa" or "lambda")
 chainType: "heavy"
 
-# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv'])
+# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv']; for further possible stratifications of the 'hiv1' cohort, please check the README file or the manuscript)
 cohort: "healthy_control"
 
 # Quality filters

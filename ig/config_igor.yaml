@@ -6,7 +6,7 @@ species: "human"
 cellType: "IgG"
 # Type of chain (can be "HC", "KC" or "LC")
 chainType: "HC"
-# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv']; for other possible regroupings of donors, please check the script '')
+# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv']; for further possible stratifications of the 'hiv1' cohort, please check the README file or the manuscript)
 cohort: "healthy_control"
 produc: "P"
 
@@ -16,7 +16,7 @@ produc: "P"
 # - "indip" : indipendent SHM model
 # - "add5mer" : additive SHM Nmer model
 # - "full5mer": full SHM Nmer model (like S5F)
-SHMmodel: "add5mer"
+SHMmodel: "full5mer"
 
 # Quality filters (referred to which sequence to load)
 filter_by_UMI: True
@@ -28,11 +28,13 @@ n_r: 3
 
 wk_dir: "./"
 input_dir: "./datasets/"
-final_template_dir: "./../templates/igor_models/inferred/"
 
-# IGoR root
-mainIgorDir: "/home/lupo/IGoR/igor_1-4-1/"
+# IGoR paths
+igorExec: "/home/lupo/IGoR/igor_1-4-1/igor_src/igor"
+#igorExec: "igor"
 defaultIgorTemplates: "./../templates/igor_models/default/"
+#inferredIgorTemplates: "/home/lupo/BCR_Klein_data/IGoR_models/"
+inferredIgorTemplates: "./../templates/igor_models/inferred/"
 
 # IGoR main steps (order is fixed, but single steps can be executed or not)
 modelConstruction: False

@@ -6,8 +6,10 @@ wkdir: "./"
 inputdir: "./sequences/"
 #input_file_prefix: "all_new_bnabs_seqs"
 input_file_prefix: "bnabs_seqs"
-#outdir: "./output/"
 
+# igBlast paths
+#igBlastExec: "/home/lupo/igBlast/ncbi-igblast-1.13.0/bin/igblastn"
+igBlastExec: "igblastn"
 #blast_database: "/home/lupo/igBlast/blast_database/"
 blast_database: "./../templates/"
 

@@ -1,6 +1,10 @@
+#!/usr/bin/python3
+
 # coding: utf-8
 
-# version date: 21 March 2022, 17:00
+# Filename: aux_funcs_annotation.py
+# Author: Cosimo Lupo, <cosimo.lupo89@gmail.com>
+# Last updated: 15 February 2023
 
 import numpy as np
 import os
@@ -10,22 +14,6 @@ import Bio
 from Bio import SeqIO
 import re
 import yaml
-
-"""
-import glob as glob
-import shutil
-import multiprocessing as mp
-from pandarallel import pandarallel
-pd.set_option('display.max_columns',100)
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-from matplotlib import pyplot
-from scipy.stats import poisson
-from scipy.stats import binom
-from scipy.optimize import curve_fit
-from scipy.optimize import minimize
-import datetime
-"""
 
 ########## settings ##########
 
@@ -38,11 +26,11 @@ blast_database = config['blast_database']
 # and subprocess modules have to used.
 # More info at:
 # https://docs.python.org/3/library/subprocess.html
-  
+
 ########## defs ##########
 
 def make_csv_from_fasta(in_file, headers=[], sep=';'):
-  
+
   '''
   Arguments:
     - in_file:    [string] is the full address of the csv file to be converted into fasta
@@ -52,27 +40,27 @@ def make_csv_from_fasta(in_file, headers=[], sep=';'):
   Returns:
     - void
   '''
-  
+
   func_name = 'make_csv_from_fasta'
-  
+
   if(not os.path.isfile(in_file)):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Input file does not exist. *** ')
   elif(in_file.split('.')[-1]!='fasta'):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Input file does not have the required \'fasta\' extension. *** ')
   else:
     out_file = ".".join(in_file.split('.')[:-1]) + '.csv'
-  
+
   fp = open(out_file, "w")
   if headers != []:
     fp.write(sep.join(headers) + "\n")
   for record in SeqIO.parse(in_file, 'fasta'):
     fp.write(record.id + sep + str(record.seq.upper()) + "\n")
   fp.close()
-  
+
   return
 
 def make_fasta_from_csv(in_file, headers=True, sep=';'):
-  
+
   '''
   Arguments:
     - in_file:    [string] is the full address of the fasta file to be converted into csv
@@ -82,9 +70,9 @@ def make_fasta_from_csv(in_file, headers=True, sep=';'):
   Returns:
     - void
   '''
-  
+
   func_name = 'make_fasta_from_csv'
-  
+
   if(not os.path.isfile(in_file)):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Input file does not exist. *** ')
   elif(in_file.split('.')[-1]!='csv'):
@@ -97,13 +85,13 @@ def make_fasta_from_csv(in_file, headers=True, sep=';'):
       head = 0
     else:
       head = None
-  
+
   fp = open(out_file, "w")
   df = pd.read_csv(in_file, index_col=False, header=head, sep=sep)
   for i in df.index:
     fp.write(">" + str(df.iat[i,0]) + "\n" + str(df.iat[i,1]).upper() + "\n")
   fp.close()
-  
+
   return
 
 def pairwise_comparison(query,germline,context):
@@ -204,12 +192,12 @@ def nt2aa(ntseq):
     -------
     aaseq : str
         Amino acid sequence
-    
+
     Example
     --------
     >>> nt2aa('TGTGCCTGGAGTGTAGCTCCGGACAGGGGTGGCTACACCTTC')
     'CAWSVAPDRGGYTF'
-        
+
     """
     nt2num = {'A': 0, 'C': 1, 'G': 2, 'T': 3, 'a': 0, 'c': 1, 'g': 2, 't': 3}
     aa_dict ='KQE*TPASRRG*ILVLNHDYTPASSRGCILVFKQE*TPASRRGWMLVLNHDYTPASSRGCILVF'
@@ -243,7 +231,7 @@ def natural_keys(text):
   return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 def find_templates(species, chainType):
-  
+
   '''
   Arguments:
     - species:    [string] is the species of interest;
@@ -253,16 +241,16 @@ def find_templates(species, chainType):
   Returns:
     - a triple with V, D and J databases
   '''
-  
+
   func_name = 'find_templates'
   allowed_species = ["Homo_Sapiens"]
   allowed_chains = ["heavy","HC","kappa","KC","lambda","LC"]
-  
+
   if(species not in allowed_species):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Argument \'species\' does not match any of the allowed values. *** ')
   elif(chainType not in allowed_chains):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Argument \'chainType\' does not match any of the allowed values. *** ')
-  
+
   if(chainType in ["heavy","HC"]):
     Vdatabase = blast_database + species + "/BCR_Heavy/forIgBlast_IGHV_" + species + "_F.fasta"
     Ddatabase = blast_database + species + "/BCR_Heavy/forIgBlast_IGHD_" + species + "_F.fasta"
@@ -275,11 +263,11 @@ def find_templates(species, chainType):
     Vdatabase = blast_database + species + "/BCR_Lambda/forIgBlast_IGLV_" + species + "_F.fasta"
     Ddatabase = blast_database + species + "/BCR_Heavy/forIgBlast_IGHD_" + species + "_F.fasta"
     Jdatabase = blast_database + species + "/BCR_Lambda/forIgBlast_IGLJ_" + species + "_F.fasta"
-    
+
   return Vdatabase,Ddatabase,Jdatabase
 
 def run_igBlast(in_file, species, chainType):
-  
+
   '''
   Arguments:
     - in_file:    [string] is the full address of the fasta file to pass through igBlast
@@ -288,24 +276,24 @@ def run_igBlast(in_file, species, chainType):
   Returns:
     - void
   '''
-  
+
   func_name = 'run_igBlast'
-  
+
   if(not os.path.isfile(in_file)):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Input file does not exist. *** ')
   elif(in_file.split('.')[-1]!='fasta'):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Input file does not have the required \'fasta\' extension. *** ')
-  
+
   out_file = ".".join(in_file.split('.')[:-1]) + '.igBlast_raw_output'
-  
+
   try:
-    Vdatabase,Ddatabase,Jdatabase = find_templates(species, chainType) # 
+    Vdatabase,Ddatabase,Jdatabase = find_templates(species, chainType) #
   except BaseException as err:
     raise ValueError(err)
-  
+
   org = {"Homo_Sapiens": "human"}
-  
-  igBlast_command = "igblastn" + \
+
+  igBlast_command = config['igBlastExec'] + \
                     " -germline_db_V " + Vdatabase + \
                     " -germline_db_D " + Ddatabase + \
                     " -germline_db_J " + Jdatabase + \
@@ -316,11 +304,11 @@ def run_igBlast(in_file, species, chainType):
                     " -show_translation" + \
                     " > " + out_file
   os.system(igBlast_command)
-  
+
   return
 
 def parse_igBlast(in_file, chainType, requireJ=True):
-  
+
   '''
   Arguments:
     - in_file:    [string] is the full address of the igBlast raw output file to be parsed
@@ -329,17 +317,17 @@ def parse_igBlast(in_file, chainType, requireJ=True):
   Returns:
     - a pandas dataframe, containing all the info for each sequence
   '''
-  
+
   func_name = 'parse_igBlast'
   allowed_chains = ["heavy","HC","kappa","KC","lambda","LC"]
-  
+
   if(not os.path.isfile(in_file)):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Input file does not exist. *** ')
   elif(chainType not in allowed_chains):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. Argument \'chainType\' does not match any of the allowed values. *** ')
   elif(requireJ not in [True, False]):
     raise ValueError(' *** Error in the \'' + func_name + '\' function. \'requireJ\' argument has to be a boolean. *** ')
-  
+
   dict_keys = ['seq_ID', 'V_best_identity', 'D_best_identity', 'J_best_identity', 'stop_codon', \
                'V_J_frame', 'productive', 'strand', 'CDR3_nt', 'V_CDR3len', 'V_best_frac_of_matches', \
                'V_best_align_length', 'V_best_align_length_beforeCDR3', 'V_best_N_of_mm', \
@@ -353,16 +341,16 @@ def parse_igBlast(in_file, chainType, requireJ=True):
                'J_best_N_of_mm', 'J_best_gap_opens', 'J_best_total_gap_length', \
                'J_best_align_start_seq', 'J_best_align_end_seq', 'J_best_align_start_gene', 'J_best_align_end_gene', \
                'J_best_igBlast_score', 'J_best_aligned_query', 'J_best_aligned_germline']
-  
+
   row_list = []
   df = pd.DataFrame()
   seq_count = 0
-  
+
   with open(in_file, 'r') as temp_f:
     ParseType = 0
     for line in temp_f:
       line = line.strip()
-      
+
       # Step 1
       if(line.find("# Query:")!=-1 and ParseType==0):
         seq_count += 1
@@ -376,7 +364,7 @@ def parse_igBlast(in_file, chainType, requireJ=True):
         # reset the dictionary for the new sequence
         seq_dict = dict((key,np.nan) for key in dict_keys)
         seq_dict['seq_ID'] = line.split()[2]
-      
+
       # Step 2
       elif(line.find("rearrangement summary")!=-1 and ParseType==0):
         ParseType = 2
@@ -407,18 +395,18 @@ def parse_igBlast(in_file, chainType, requireJ=True):
           seq_dict['V_J_frame'] = v[4]
           seq_dict['productive'] = v[5]
           seq_dict['strand'] = v[6]
-      
+
       # Step 3
       elif(line.find("region sequence details")!=-1 and ParseType==0):
         ParseType = 3
       elif(ParseType==3):
         ParseType = 0
         seq_dict['CDR3_nt'] = line.split()[1]
-      
+
       # Step 4
       elif(line.find("CDR3-IMGT")!=-1 and ParseType==0):
         seq_dict['V_CDR3len'] = float(line.split()[4])
-      
+
       # Step 5
       elif(line.find("hits found")!=-1 and ParseType==0):
         ParseCount = (int)(line.split()[1])
@@ -481,24 +469,24 @@ def parse_igBlast(in_file, chainType, requireJ=True):
           seq_dict['J_best_aligned_query'] = v[14]
           seq_dict['J_best_aligned_germline'] = v[15]
   # here I close the 'with'
-  
+
   # add the row for the last sequence read
   for key in seq_dict.keys():
     if(seq_dict[key]=="N/A"):
       seq_dict[key] = np.nan
   #df = df.append(seq_dict, ignore_index=True)
   row_list.append([seq_dict[key] for key in seq_dict.keys()])
-  
+
   for c,col in enumerate(seq_dict.keys()):
     df[col] = [row_list[i][c] for i in range(len(row_list))]
-  
+
   row_list = []
 
   # Preliminar quality filtering (minimal requirements)
   df = df[df['V_best_identity']==df['V_best_identity']]
   if requireJ:
     df = df[df['J_best_identity']==df['J_best_identity']]
-  
+
   # Cast to int
   # The 'Int64' type by pandas is able to store nan values
   for col in ['V_CDR3len', 'V_best_align_length', 'V_best_align_length_beforeCDR3', 'V_best_N_of_mm', \
@@ -509,10 +497,10 @@ def parse_igBlast(in_file, chainType, requireJ=True):
               'J_best_gap_opens', 'J_best_total_gap_length', 'J_best_align_start_seq', 'J_best_align_end_seq', \
               'J_best_align_start_gene', 'J_best_align_end_gene']:
     df[col] = df[col].astype('Int64')
-  
+
   # reindex to change the column ordering
   df = df.reindex(columns=dict_keys)
-  
+
   # Extraction of other info
   # High-quality sequences may still have no annotated CDR3, likely because of missing anchors on V or J (or both)
   df['V_best_family'] = df['V_best_identity'].apply(lambda x: x.split(',')[0].split('*')[0] if type(x) is str else np.nan)
@@ -523,14 +511,14 @@ def parse_igBlast(in_file, chainType, requireJ=True):
   df['CDR3_aa_len'] = df['CDR3_aa'].apply(lambda x: len(x) if type(x) is str else np.nan)
   df['stop_codon_CDR3'] = df.apply(lambda row: row['CDR3_aa'].find('*') if type(row['CDR3_aa']) is str else np.nan, axis=1)
   df['stop_codon_CDR3'] = df['stop_codon_CDR3'].apply(lambda x: "No" if x==-1 else ("Yes" if (x==x and x>=0) else np.nan))
-  
+
   # Hyper-indels analysis - for Pandas dataframe
   #df['hyper_indels_dict'] = df.apply(lambda row: dict(pairwise_comparison(row['V_best_aligned_query'],row['V_best_aligned_germline'],3)), axis=1)
   #df['N_hyper_indels'] = df['hyper_indels_dict'].apply(lambda dct: len(list(dct['type'])))
   #df['N_ins'] = df['hyper_indels_dict'].apply(lambda dct: list(dct['type']).count("ins"))
   #df['N_del'] = df['hyper_indels_dict'].apply(lambda dct: list(dct['type']).count("del"))
 
-  # Hyper-indels analysis - for list of lists, then becoming a string 
+  # Hyper-indels analysis - for list of lists, then becoming a string
   df['errors_list'] = df.apply(lambda row: pairwise_comparison(row['V_best_aligned_query'],row['V_best_aligned_germline'],3), axis=1)
   df['errors_list_split'] = df['errors_list'].apply(lambda x: x[1:-1].split(',') if len(x)>2 else [])
   df['N_del'] = df['errors_list_split'].apply(lambda x: len([y for y in x if y[1]=="d"]))
@@ -538,26 +526,26 @@ def parse_igBlast(in_file, chainType, requireJ=True):
   df['N_indels'] = df.apply(lambda row: row['N_del']+row['N_ins'], axis=1)
   df['Total_L_del'] = df['errors_list_split'].apply(lambda x: sum([len(y[1:-1].split('|')[3]) for y in x if y[1]=="d"]))
   df['Total_L_ins'] = df['errors_list_split'].apply(lambda x: sum([len(y[1:-1].split('|')[3]) for y in x if y[1]=="i"]))
-  
+
   # Drop unnecessary data
   df = df.drop(['V_CDR3len', 'D_best_aligned_query', 'D_best_aligned_germline', 'errors_list_split'], axis=1)
-  
+
   return df
 
 def reconstruct_gapped_seqs(row):
-  
+
   raw_seq = row['raw_seq_nt']
   #germline = V_dict[row['V_best_identity'].split(',')[0]]
-  
+
   # V segment
   reconstructed_query = row['V_best_aligned_query']
   reconstructed_germline = row['V_best_aligned_germline']
-  
+
   #reconstructed_query += '_'
   #reconstructed_germline += '_'
-  
+
   if(row['J_best_identity']==row['J_best_identity']):
-    
+
     # CDR3 portion
     start = row['V_best_align_end_seq'] - 1 + 1                # igBlast indexes are 1-based;
                                                                # then, we need to move 1 position further
@@ -566,27 +554,27 @@ def reconstruct_gapped_seqs(row):
                                                                # then, we need to move 1 position backward
                                                                # w.r.t. the beginning of the aligned J region;
                                                                # finally, we need to include the last position, too
-    
+
     subseq = raw_seq[start:end]
     reconstructed_query += subseq
     reconstructed_germline += subseq
-    
+
     #reconstructed_query += '_'
     #reconstructed_germline += '_'
-    
+
     # J segment
     reconstructed_query += row['J_best_aligned_query']
     reconstructed_germline += row['J_best_aligned_germline']
-  
+
   return reconstructed_query + ';' + reconstructed_germline
 
 def revert_seq(row):
-  
+
   query = row['gapped_query']
   germline = row['gapped_germline']
-  
+
   reverted_seq = ""
-  
+
   for i in range(len(query)):
     if(query[i]!='-' and germline[i]!='-'):
       reverted_seq += query[i]
@@ -596,7 +584,7 @@ def revert_seq(row):
       # do nothing
     elif(query[i]=='-' and germline[i]=='-'):
       print('Dashes on both gapped query and germline!')
-    
+
   return reverted_seq
 
 def write_anchored_seqs(row):
