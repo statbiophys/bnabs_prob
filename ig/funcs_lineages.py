@@ -20,7 +20,7 @@ by = ['v_gene','j_gene','cdr3_length']
 gdfs = []
 for (v,j,l),group in df.loc[df['cdr3_length']>threshold_l].groupby(by):
     gdf = group.copy()
-    trie = atriegc()
+    trie = atriegc.TrieNucl()
     for cdr3 in gdf['cdr3']:
         trie.insert(cdr3)
     t = int(threshold_x*l)
