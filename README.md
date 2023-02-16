@@ -28,6 +28,7 @@ Finally, though most of the Python packages used in the scripts are quite common
 
 - [biopython](https://pypi.org/project/biopython/)
 - [PyYAML](https://pypi.org/project/PyYAML/)
+- [ATrieGC](https://pypi.org/project/atriegc/)
 
 that can be pip-installed as usual.
 
@@ -220,6 +221,12 @@ and by serum neutralization breadth:
 - "hiv1\_top\_neutralizers"
 
 Related IGoR models can be inferred on these sub-cohorts, by modifying the `cohort` parameter in the `config_igor.yaml ` file.
+
+The auxiliary script `funcs_lineages.py` can be used to infer lineages in 
+annotated datasets. This file also contains RAxML commands used to 
+reconstruct phylogenies and ancestral states in largest lineages, and 
+functions to analyze phylogenies to quantify skewedness.
+
 
 ---
 
