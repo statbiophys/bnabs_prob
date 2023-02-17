@@ -206,7 +206,7 @@ is again fully customizable from the `config_igor.yaml` file (e.g., the user can
 
 The output consists into a set of folders (`aligns`, `evaluate`, `inference`, `output`) containing IGoR results, as described in its [documentation](https://statbiophys.github.io/IGoR/). In particular, the two files under the `inference` folder, `final_parms.txt` and `final_marginals.txt`, are the ones containing the inferred model to be used later for bnabs evaluation. To this aim, they will also be copied automatically under the `template/igor_models/inferred` folder.
 
-Also, a summary file is produced by combining for each sequence the results from igBlast annotation and IGoR evaluation, potentially useful for a deeper analysis at the single-sequence level, or also to extract summary statistics at the donor or cohort level (e.g., the distribution of the fraction of point-mutated positions).
+Also, a `.IGoR_summary` summary file is produced by combining for each sequence the results from igBlast annotation and IGoR evaluation, potentially useful for a deeper analysis at the single-sequence level, or also to extract summary statistics at the donor or cohort level (e.g., the distribution of the fraction of point-mutated positions).
 
 The "hiv1" cohort can be further stratified by antiretroviral therapy (ART) treatment:
 
@@ -222,7 +222,7 @@ and by serum neutralization breadth:
 
 Related IGoR models can be inferred on these sub-cohorts, by modifying the `cohort` parameter in the `config_igor.yaml ` file.
 
-The auxiliary script `funcs_lineages.py` can be used to infer lineages in annotated datasets. This file also contains RAxML commands used to reconstruct phylogenies and ancestral states in largest lineages, and functions to analyze phylogenies to quantify skewedness.
+The auxiliary script `script_lineages.py` can be used to infer lineages in annotated datasets. This file also contains RAxML commands used to reconstruct phylogenies and ancestral states in largest lineages, and functions to analyze phylogenies to quantify skewedness.
 
 ---
 
@@ -248,4 +248,4 @@ python3 launch_igor.py
 
 allows to get the aforementioned probabilities for each bnab. The output is of the same kind of that obtained in the `ig` step (apart from the `inference` folder, since here bnabs are just *evaluated* according to some IGoR models, and not used for further model inference).
 
-Finally, as for the `ig` step, a summary file is produced, combining for each bnab the results from igBlast annotation and from IGoR evaluation according to a certain model, recombination and hyper-mutation probabilities, and neutralization properties. It's this set of files that is eventually used for the final bnab analysis, i.e. the assessment of the correlation between their probability of being generated and developed, and their neutralization properties.
+Finally, as for the `ig` step, a `.IGoR_summary` file is produced, combining for each bnab the results from igBlast annotation and from IGoR evaluation according to a certain model, recombination and hyper-mutation probabilities, and neutralization properties. It's this set of data that is eventually used for the final bnab analysis, i.e. the assessment of the correlation between their probability of being generated and developed, and their neutralization properties, whose results are stored in a `.neutr_regression` file under the `igor_bnabs_summary` folder.
