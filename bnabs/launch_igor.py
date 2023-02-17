@@ -11,6 +11,7 @@ import numpy as np
 from scipy.stats import poisson
 from sklearn import linear_model
 clf = linear_model.LinearRegression()
+from scipy.stats import linregress
 import glob as glob
 import os as os
 import yaml
@@ -595,10 +596,18 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     Z = np.dot(X,clf.coef_)
     
+    gradient, intercept, r_value, p_value, std_err = linregress(Z,Y)
+    
     features = [",".join([str(x) for x in X[i]]) for i in range(len(X))]
     coeffs = ",".join([str(x) for x in clf.coef_])
-
-    df_out = pd.DataFrame({'bnab_ID': np.array(regr_df['bnab_ID']), 'features': features, 'coeffs': [coeffs for i in range(len(X))], 'bestFit_score': Z, 'log10AuC': Y})
+    
+    df_out = pd.DataFrame({'bnab_ID': np.array(regr_df['bnab_ID']), \
+                           'features': features, \
+                           'coeffs': [coeffs for i in range(len(X))], \
+                           'bestFit_score': Z, \
+                           'log10AuC': Y, \
+                           'r_value': [r_value for i in range(len(X))], \
+                           'p_value': [p_value for i in range(len(X))]})
     
     out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.neutr_regression'
-    df_out[['bnab_ID','log10AuC','features','coeffs','bestFit_score']].to_csv(out_file, index=False, sep=';')
+    df_out[['bnab_ID','log10AuC','features','coeffs','bestFit_score','r_value','p_value']].to_csv(out_file, index=False, sep=';')

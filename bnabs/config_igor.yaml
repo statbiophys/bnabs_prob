@@ -9,8 +9,9 @@ species: "human"
 chainType: "HC"
 filter_by_indels: True
 edges_trimmed: True
-n_l: 27
-n_r: 3
+# n_l is 3 for "HC" and "KC", 27 for "LC"
+n_l: 3
+n_r: 2
 
 # Model specs (some quality filters included - referred to IGoR models to use for evaluating bnabs)
 UMI_thr: 3
@@ -67,7 +68,7 @@ N_iters: 10
 align_thr: 250
 P_ignore: 0.00001
 N_scen: 10
-V_thresh: 100.0
+V_thresh: 30.0
 D_thresh: 15.0
 J_thresh: 15.0
 gap_penalty: 50.0

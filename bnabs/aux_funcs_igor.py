@@ -1,6 +1,10 @@
+#!/usr/bin/python3
+
 # coding: utf-8
 
-# version date: 21 March 2022, 17:00
+# Filename: aux_funcs_igor.py
+# Author: Cosimo Lupo, <cosimo.lupo89@gmail.com>
+# Last updated: 10 February 2023
 
 def expand_array(strvar):
   if(len(strvar)>2):

@@ -2,7 +2,7 @@
 
 # coding: utf-8
 
-# Filename: aux_funcs_annotation.py
+# Filename: script_lineages.py
 # Author: Natanael Spisak, <natanael.spisak@gmail.com>
 # Last updated: 16 February 2023
 
