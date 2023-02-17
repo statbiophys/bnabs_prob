@@ -1,9 +1,7 @@
 # Config file for IGoR wrapper (launch_igor.py script)
 
 wk_dir: "./"
-#inputdir: "/home/lupo/bnabs_Klein/latest_bnabs_list"
 input_dir: "./sequences/"
-#input_file_prefix: "all_new_bnabs_seqs"
 input_file_prefix: "bnabs_seqs"
 
 # Database specs (quality filters included - referred to bnabs to analyze)
@@ -18,16 +16,18 @@ n_r: 3
 UMI_thr: 3
 # If a single model has to be loaded for bnabs evaluation
 singleModel: True
-produc: "standard_NP"
+# General model ('cohortWide_P' is the one used for manuscript main figures)
+produc: "cohortWide_P"
+# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv']; for further possible stratifications of the 'hiv1' cohort, please check the README file or the manuscript)
 cohort: "healthy_control"
-SHMmodel: "full5mer"
-# Otherwise, the dataset can be evaluated according to a set of different models
-# Undesired items in the following lists can be commented out:
+# SHM model ('add5mer' is the one used for manuscript main figures)
+SHMmodel: "add5mer"
+
+# Otherwise, the dataset of bnabs can be evaluated according to several different models; undesired items in the following lists can be commented out
 producs:
   - "standard_NP"
   - "cohortWide_NP"
   - "cohortWide_P"
-# Patient cohort (can be chosen among ['healthy_control', 'hiv1', 'hcv']; for further possible stratifications of the 'hiv1' cohort, please check the README file or the manuscript)
 cohorts:
   - "healthy_control"
   - "hiv1"
@@ -54,7 +54,7 @@ seqRead: True
 alignment: True
 evalGenModel: True
 
-# Gathering together igBlast and IGoR results for bnabs
+# Gathering together igBlast and IGoR results for bnabs; this step also computes the regression of bnabs score vs neutralization
 bnabAnalysisFinalSummary: True
 
 # main flags

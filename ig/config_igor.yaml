@@ -10,13 +10,13 @@ chainType: "HC"
 cohort: "healthy_control"
 produc: "P"
 
-# SHM reference model. Can be chosen among:
+# SHM reference model ('add5mer' is the one used for manuscript main figures). Can be chosen among:
 # - "none" : no SHMs, only for heavy naive seqs
 # - "default" : default model for heavy memory seqs
 # - "indip" : indipendent SHM model
 # - "add5mer" : additive SHM Nmer model
 # - "full5mer": full SHM Nmer model (like S5F)
-SHMmodel: "full5mer"
+SHMmodel: "add5mer"
 
 # Quality filters (referred to which sequence to load)
 filter_by_UMI: True

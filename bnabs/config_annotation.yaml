@@ -2,9 +2,7 @@
 
 # General specs (relative paths are supported)
 wkdir: "./"
-#inputdir: "/home/lupo/bnabs_Klein/latest_bnabs_list"
 inputdir: "./sequences/"
-#input_file_prefix: "all_new_bnabs_seqs"
 input_file_prefix: "bnabs_seqs"
 
 # igBlast paths

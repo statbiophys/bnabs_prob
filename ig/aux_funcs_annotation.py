@@ -287,7 +287,7 @@ def run_igBlast(in_file, species, chainType):
   out_file = ".".join(in_file.split('.')[:-1]) + '.igBlast_raw_output'
 
   try:
-    Vdatabase,Ddatabase,Jdatabase = find_templates(species, chainType) #
+    Vdatabase,Ddatabase,Jdatabase = find_templates(species, chainType)
   except BaseException as err:
     raise ValueError(err)
 
@@ -303,9 +303,16 @@ def run_igBlast(in_file, species, chainType):
                     " -outfmt '7 std qseq sseq'" + \
                     " -show_translation" + \
                     " > " + out_file
-  os.system(igBlast_command)
-
+  
+  try:
+    res = os.system(igBlast_command)
+    if res != 0:
+      raise RuntimeError('igBlast execution failed!')
+  except BaseException as err:
+    raise err
+  
   return
+
 
 def parse_igBlast(in_file, chainType, requireJ=True):
 

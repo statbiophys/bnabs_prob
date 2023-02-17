@@ -80,7 +80,7 @@ chmod -R u+rw *
 
 ##### Setting paths
 
-Paths can be saved into `.bashrc` file through commands like:
+igBlast-related paths can be exported through commands like:
 
 - `export PATH=$PATH:$HOME/igBlast/ncbi-blast-2.9.0+/bin:$HOME/igBlast/ncbi-igblast-1.13.0/bin`
 
@@ -88,7 +88,7 @@ Paths can be saved into `.bashrc` file through commands like:
 
 - `export IGDATA=$HOME/igBlast`
 
-so to be able to use igBlast commands (e.g. `igblastn`) independently from the current working directory. Otherwise, the full path of such commands (e.g. `$HOME/igBlast/ncbi-igblast-1.13.0/bin/igblastn`) has to be used.
+so to be able to use igBlast commands (e.g. `igblastn`) independently from the current working directory. Otherwise, the full path of such commands (e.g. `$HOME/igBlast/ncbi-igblast-1.13.0/bin/igblastn` for the executable, and analogously for pointing at the internal igBlast dataset) has to be used.
 
 ##### Making the database
 
@@ -222,11 +222,7 @@ and by serum neutralization breadth:
 
 Related IGoR models can be inferred on these sub-cohorts, by modifying the `cohort` parameter in the `config_igor.yaml ` file.
 
-The auxiliary script `funcs_lineages.py` can be used to infer lineages in 
-annotated datasets. This file also contains RAxML commands used to 
-reconstruct phylogenies and ancestral states in largest lineages, and 
-functions to analyze phylogenies to quantify skewedness.
-
+The auxiliary script `funcs_lineages.py` can be used to infer lineages in annotated datasets. This file also contains RAxML commands used to reconstruct phylogenies and ancestral states in largest lineages, and functions to analyze phylogenies to quantify skewedness.
 
 ---
 

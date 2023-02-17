@@ -68,6 +68,7 @@ genomicJ = template_path + "genomicJs.fasta"
 anchorsV = template_path + "V_gene_CDR3_anchors.csv"
 anchorsJ = template_path + "J_gene_CDR3_anchors.csv"
 
+
 ################################ MODEL CONSTRUCTION ########################################
 
 if config['modelConstruction']:
@@ -85,8 +86,14 @@ if config['modelConstruction']:
   #runcmd += " --J " + config['genomicJ']
   runcmd += " -run_custom"
 
-  os.system(runcmd)
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('IGoR error during the model construction.')
+  except BaseException as err:
+    raise err
 
+  
 ################################ SEQ READ ########################################
 
 if config['seqRead']:
@@ -102,8 +109,14 @@ if config['seqRead']:
   if config['N_subsampling'] != None and config['N_subsampling'] != 'None':
     runcmd += " -subsample " + str(config['N_subsampling'])
 
-  os.system(runcmd)
-
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('IGoR error when reading input sequences.')
+  except BaseException as err:
+    raise err
+  
+  
 ################################ ALIGNMENT ########################################
 
 if config['alignment']:
@@ -148,21 +161,43 @@ if config['alignment']:
     runcmd += " --D ---thresh " + str(config['D_thresh'])
   runcmd += " --J ---thresh " + str(config['J_thresh'])
 
-  os.system(runcmd)
-
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('IGoR error during the alignment step.')
+  except BaseException as err:
+    raise err
+  
+  
 ################################ FILTERING OF ALIGNMENT ########################################
 
 if config['filter']:
 
   print("# Filtering")
 
-  os.system("mv " + out_dir + "aligns/indexed_sequences.csv " + out_dir + "aligns/indexed_sequences_old.csv");
-  os.system("mv " + out_dir + "aligns/V_alignments.csv " + out_dir + "aligns/V_alignments_old.csv");
-  os.system("mv " + out_dir + "aligns/D_alignments.csv " + out_dir + "aligns/D_alignments_old.csv");
-  os.system("mv " + out_dir + "aligns/J_alignments.csv " + out_dir + "aligns/J_alignments_old.csv");
+  runcmd = "mv " + out_dir + "aligns/indexed_sequences.csv " + out_dir + "aligns/indexed_sequences_old.csv";
+  runcmd += "; "
+  runcmd += "mv " + out_dir + "aligns/V_alignments.csv " + out_dir + "aligns/V_alignments_old.csv";
+  runcmd += "; "
+  runcmd += "mv " + out_dir + "aligns/D_alignments.csv " + out_dir + "aligns/D_alignments_old.csv";
+  runcmd += "; "
+  runcmd += "mv " + out_dir + "aligns/J_alignments.csv " + out_dir + "aligns/J_alignments_old.csv";
 
-  os.system("python filter_IGoR_align.py " + out_dir + " " + str(config['align_thr']));
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('Bash error when copying alignment files during the filtering step.')
+  except BaseException as err:
+    raise err
 
+  try:
+    res = os.system("python filter_IGoR_align.py " + out_dir + " " + str(config['align_thr']));
+    if res != 0:
+      raise RuntimeError('Python error during the filtering step of alignments.')
+  except BaseException as err:
+    raise err
+  
+  
 ################################ INFER GENERATIVE MODEL ########################################
 
 if config['inferGenModel']:
@@ -203,8 +238,13 @@ if config['inferGenModel']:
   runcmd += " --N_iter " + str(config['N_iters'])
   runcmd += " --L_thresh " + config['L_thresh']
 
-  os.system(runcmd)
-
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('IGoR error during the inference step.')
+  except BaseException as err:
+    raise err
+  
   # Store the inferred model under 'templates' folder
 
   runcmd = "mkdir -p " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
@@ -213,8 +253,14 @@ if config['inferGenModel']:
   runcmd += "; "
   runcmd += "cp " + out_dir + "inference/final_marginals.txt" + " " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
 
-  os.system(runcmd)
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('Bash error when copying IGoR inferred model.')
+  except BaseException as err:
+    raise err
 
+  
 ################################ EVALUATE GENERATIVE MODEL ########################################
 
 if config['evalGenModel']:
@@ -260,8 +306,14 @@ if config['evalGenModel']:
   runcmd += " -output --Pgen"
   runcmd += " --scenarios " + str(config['N_scen'])
 
-  os.system(runcmd)
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('IGoR error during the evaluation step.')
+  except BaseException as err:
+    raise err
 
+  
 ################################ GENERATE SEQUENCES ########################################
 
 if config['generateSeqs']:
@@ -305,10 +357,14 @@ if config['generateSeqs']:
   runcmd += " -generate " + str(config['N_generated'])
   runcmd += " --noerr"
 
-  os.system(runcmd)
+  try:
+    res = os.system(runcmd)
+    if res != 0:
+      raise RuntimeError('IGoR error during the generation step.')
+  except BaseException as err:
+    raise err
 
-
-
+  
 ################################ GATHER IGBLAST + IGOR ANALYSIS TOGETHER ########################################
 
 if config['igAnalysisFinalSummary']:

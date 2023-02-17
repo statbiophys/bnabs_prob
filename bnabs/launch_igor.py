@@ -9,6 +9,8 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import poisson
+from sklearn import linear_model
+clf = linear_model.LinearRegression()
 import glob as glob
 import os as os
 import yaml
@@ -113,7 +115,8 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     igor_chain_name = "IGK"
   if config['chainType']=="LC":
     igor_chain_name = "IGL"
-    
+  
+  
   ################################ SEQ READ ########################################
   
   if config['seqRead']:
@@ -128,7 +131,13 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     #if config['N_subsampling'] != None and config['N_subsampling'] != 'None':
     #  runcmd += " -subsample " + str(config['N_subsampling'])
     
-    os.system(runcmd)
+    try:
+      res = os.system(runcmd)
+      if res != 0:
+        raise RuntimeError('IGoR error when reading input sequences.')
+    except BaseException as err:
+      raise err
+  
   
   ################################ ALIGNMENT ########################################
   
@@ -163,7 +172,13 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
       runcmd += " --D ---thresh " + str(config['D_thresh'])
     runcmd += " --J ---thresh " + str(config['J_thresh'])
     
-    os.system(runcmd)
+    try:
+      res = os.system(runcmd)
+      if res != 0:
+        raise RuntimeError('IGoR error during the alignment step.')
+    except BaseException as err:
+      raise err
+  
   
   ################################ EVALUATE GENERATIVE MODEL ########################################
   
@@ -189,9 +204,14 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     runcmd += " -output --Pgen"
     runcmd += " --scenarios " + str(config['N_scen'])
     
-    os.system(runcmd)
-    
-    
+    try:
+      res = os.system(runcmd)
+      if res != 0:
+        raise RuntimeError('IGoR error during the evaluation step.')
+    except BaseException as err:
+      raise err
+  
+  
   ################################ GATHER IGBLAST + IGOR ANALYSIS TOGETHER ########################################
   
   if config['bnabAnalysisFinalSummary']:
@@ -236,7 +256,7 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     ##### bnab binding site & neutralization data #####
     
-    in_file = input_dir + "bnabs.csv"
+    in_file = input_dir + "bnabs_neutr.csv"
     features_df = pd.read_csv(in_file, sep=";")
     
     main_df['binding_site'] = main_df['bnab_ID'].map(features_df.set_index('bnab_ID')['binding_site'])
@@ -383,10 +403,8 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     in_file = out_dir + "aligns/" + "indexed_sequences.csv"
     IGoR_noHyperIndels_indexing = pd.read_csv(in_file, sep=";")
     IGoR_noHyperIndels_indexing['seq_index'] = IGoR_noHyperIndels_indexing['seq_index'].astype(int)
-    
     #main_df['IGoR_seq_index'] = main_df['orig_seq_nt'].map(IGoR_indexing.set_index('sequence')['seq_index'])
     main_df['IGoR_noHyperIndels_seq_index'] = main_df['noHyperIndels_trimmed_seq_nt'].map(IGoR_noHyperIndels_indexing.set_index('sequence')['seq_index'])
-    
     ##### IGoR alignment #####
     
     #IGoR_V_align = pd.read_csv(sub_dir + "aligns/" + "V_alignments.csv", sep=";")
@@ -551,12 +569,36 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     ##### export the dataframe #####
     
-    out_file = out_dir + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
+    out_file = out_dir + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.IGoR_summary'
     main_df.to_csv(out_file, index=False, sep=';')
     
     # old name of this sub-folder: IGoR_analysis
     if not os.path.isdir(wk_dir + 'igor_bnabs_summary'):
       os.mkdir(wk_dir + 'igor_bnabs_summary')
     
-    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
+    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.IGoR_summary'
     main_df.to_csv(out_file, index=False, sep=';')
+    
+    ##### compute the regression with neutralization features #####
+
+    regr_df = main_df.query('IGoR_noHyperIndels_seq_likelihood==IGoR_noHyperIndels_seq_likelihood')
+    regr_df = regr_df.query('IGoR_noHyperIndels_seq_likelihood>0')
+    regr_df = regr_df.query('igBlast_CDR3_nt==igBlast_CDR3_nt')
+    regr_df = regr_df.query('AuC>10')
+    
+    X = [np.log10(regr_df['IGoR_noHyperIndels_Pgen']), np.log10(regr_df['IGoR_noHyperIndels_hyperMutations_likelihood'])]
+    X = np.reshape(np.array(X).T,(len(X[0]),len(X)))
+    
+    Y = np.log10(regr_df['AuC'])
+    
+    clf.fit(X,Y)
+    
+    Z = np.dot(X,clf.coef_)
+    
+    features = [",".join([str(x) for x in X[i]]) for i in range(len(X))]
+    coeffs = ",".join([str(x) for x in clf.coef_])
+
+    df_out = pd.DataFrame({'bnab_ID': np.array(regr_df['bnab_ID']), 'features': features, 'coeffs': [coeffs for i in range(len(X))], 'bestFit_score': Z, 'log10AuC': Y})
+    
+    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.neutr_regression'
+    df_out[['bnab_ID','log10AuC','features','coeffs','bestFit_score']].to_csv(out_file, index=False, sep=';')

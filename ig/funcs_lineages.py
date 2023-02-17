@@ -1,4 +1,15 @@
-import os, pandas as pd, numpy as np, atriegc
+#!/usr/bin/python3
+
+# coding: utf-8
+
+# Filename: aux_funcs_annotation.py
+# Author: Natanael Spisak, <natanael.spisak@gmail.com>
+# Last updated: 16 February 2023
+
+import os
+import pandas as pd
+import numpy as np
+import atriegc
 
 #read example igBlast-aligned repertoire
 filename = 'healthy/BZR10_117_t0_IgG_1_HC_unique.df'
@@ -41,9 +52,9 @@ threshold_size = 50
 indices = sizes[sizes>=threshold_size].index
 #phylogeny and ancestral states reconstruction under GTRGAMMA
 #raxml commands $clone is the lineage index
-#raxml -s "lineage_$clone.fasta" -w healthy/ -g "start_tree_$clone.newick" -o "$clone*0" -m GTRGAMMA -n "$clone" -p 12345 
-#raxml -f A -s "lineage_$clone.fasta" -w healthy/ -t RAxML_bestTree.$clone" -m GTRGAMMA -n "$1a" -p 12345 
-   
+#raxml -s "lineage_$clone.fasta" -w healthy/ -g "start_tree_$clone.newick" -o "$clone*0" -m GTRGAMMA -n "$clone" -p 12345
+#raxml -f A -s "lineage_$clone.fasta" -w healthy/ -t RAxML_bestTree.$clone" -m GTRGAMMA -n "$1a" -p 12345
+
 #analyze phylogenies in directories
 #newick files in directory correspond to a given cohort
 #estimate skewedness within cohorts
@@ -60,7 +71,7 @@ def get_weights(dirname):
                     for c2 in c.children:
                         weights.append(len(c2.get_leaves())/(len(t)-1))
     return weights
-   
+
 def get_fractions(dirname):
     fractions = []
     for filename in os.listdir(dirname):
@@ -77,7 +88,7 @@ def get_fractions(dirname):
                             if (c == node):
                                 for d in c.get_children():
                                     parent.add_child(d)
-                            else: parent.add_child(c)  
+                            else: parent.add_child(c)
 
             branch_lengths,branch_lengths_terminal = [],[]
             for node in t.traverse('preorder'):

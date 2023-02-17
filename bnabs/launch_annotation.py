@@ -102,7 +102,7 @@ if config['runIgBlast']:
       try:
         run_igBlast(in_file, config['species'], config['chainType'])
       except BaseException as err:
-        print(err)
+        raise ValueError(err)
       t2 = datetime.datetime.now()
       print('        igBlast running time:', t2-t1)
 
