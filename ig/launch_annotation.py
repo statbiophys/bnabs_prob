@@ -43,7 +43,8 @@ if input_dir[-1] != '/':
   input_dir += '/'
 
 cohort_dir = input_dir + config['cohort'] + '_' + config['cellType'] + '/'
-sample_dirs = glob.glob(cohort_dir + 'BZR*')
+files = glob.glob(cohort_dir + '*')
+sample_dirs = [_ for _ in files if (os.path.isdir(_) and 'cohortWide' not in _.split('/')[-1])]
 
 chainType_dict = {"heavy": "HC", "kappa": "KC", "lambda": "LC"}
 chainType_shortHand = chainType_dict[config['chainType']]

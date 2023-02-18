@@ -18,11 +18,11 @@ The present code, companion of the manuscript *"Determining probabilities of HIV
 
 1) `ig`, where we process B-Cell Receptor (BCR) repertoires from either healthy or chronically infected patientes, grouped into three cohorts: "healthy\_control", "hiv1", and "hcv". Sequences are firstly annotated through igBlast, then sorted and grouped by cohorts. Secondly, IGoR infers their recombination and evolution statistics, finally producing cohort-specific models.
 
-2) `bnabs`, where we annotate bnabs sequences, analyze their features and put them in relation with their probability of generation and evolution, according to the cohort-specific models inferred above.
+2) `bnabs`, where we annotate bNAbs sequences, analyze their features and put them in relation with their probability of generation and evolution, according to the cohort-specific models inferred in the `ig` section above.
 
-Test datasets of 5'000 BCR heavy- and light-chain IgG sequences for two healthy donors are provided under `ig/datasets/`, allowing to directly run the present code. Under `bnabs/sequences`, instead, we provided heavy- and light-chain sequences for the bnabs analyzed in the manuscript, together with a summary of their features relevant for the present analysis (e.g. their neutralization breadth). Some IGoR models, inferred on the whole cohort of healthy patients, are also provided under the folder `templates/igor_models/inferred`, again for testing purposes.
+Test datasets of 5'000 BCR heavy- and light-chain IgG sequences for two healthy donors are provided under `ig/datasets/`, which allows directly running the present code and recapitulating sequence annotation and model building as it was performed in the manuscript. Under `bnabs/sequences`, we provide the heavy- and light-chain sequences for the bNAbs analyzed in the manuscript, together with a summary of their features relevant for the present analysis (e.g. their neutralization score). IGoR models, inferred on the whole cohort of healthy patients, are also provided under the folder `templates/igor_models/inferred`, again for testing purposes.
 
-All the scripts, written in Python3, can hence be run with the attached test datasets. However, they rely on a local installation of **igBlast** and **IGoR** softwares. Expand the sections below for installation and configuration details. V(D)J templates for igBlast and standard IGoR models are also shipped with this code, under the folder `templates`.
+All the scripts, written in **Python3**, can hence be run with the attached test datasets, with an expected single-core run time of approximatively one hour. However, they rely on a local installation of **igBlast** and **IGoR** softwares. Expand the sections below for installation and configuration details. V(D)J templates for igBlast and standard IGoR models are also shipped with this code, under the folder `templates`.
 
 Finally, though most of the Python packages used in the scripts are quite common (e.g. `numpy` or `pandas`), some others are less frequent and could not be alredy present in standard Python3 distributions. It can be the case for the following packages:
 
@@ -31,6 +31,15 @@ Finally, though most of the Python packages used in the scripts are quite common
 - [ATrieGC](https://pypi.org/project/atriegc/)
 
 that can be pip-installed as usual.
+
+---
+
+### Data availability
+
+The complete set of FASTA files with quality-filtered and assembled IgG sequences (as described in the manuscript) can be downloaded from [this link](https://uni-koeln.sciebo.de/s/KXtU6ENbSREELGi). They are grouped by chain, donor, and finally by cohort. For each sequence, the number of reads in which its UMI was initially found, is reported as `Nx` in the header, together with the ID of the donor and some other useful info. E.g., `>BZR6_100_t0_IgG_1:UID110963:G30292:N40:IGHG:HC`, specifies an IGHG isotype heavy chain consensus sequence of 40 reads that comes from healthy control donor 100. 
+This allows to remove low-quality reads (N<3) at any desired step of the downstream analysis.
+
+Corresponding FASTQ files with raw NGS reads for all repertoires have been deposited at the [Sequence Read Archive](https://www.ncbi.nlm.nih.gov/sra) (SRA) with accession number SAMN29624595-713 (BioProject Accession Number [PRJNA857338](https://www.ncbi.nlm.nih.gov/bioproject/PRJNA857338/)).
 
 ---
 
@@ -204,7 +213,7 @@ python3 launch_igor.py
 
 is again fully customizable from the `config_igor.yaml` file (e.g., the user can choose to run only the alignment step, leaving the inference or the final evaluation for later).
 
-The output consists into a set of folders (`aligns`, `evaluate`, `inference`, `output`) containing IGoR results, as described in its [documentation](https://statbiophys.github.io/IGoR/). In particular, the two files under the `inference` folder, `final_parms.txt` and `final_marginals.txt`, are the ones containing the inferred model to be used later for bnabs evaluation. To this aim, they will also be copied automatically under the `template/igor_models/inferred` folder.
+The output consists into a set of folders (`aligns`, `evaluate`, `inference`, `output`) containing IGoR results, as described in its [documentation](https://statbiophys.github.io/IGoR/). In particular, the two files under the `inference` folder, `final_parms.txt` and `final_marginals.txt`, are the ones containing the inferred model to be used later for bNAb evaluation. To this aim, they will also be copied automatically under the `template/igor_models/inferred` folder.
 
 Also, a `.IGoR_summary` summary file is produced by combining for each sequence the results from igBlast annotation and IGoR evaluation, potentially useful for a deeper analysis at the single-sequence level, or also to extract summary statistics at the donor or cohort level (e.g., the distribution of the fraction of point-mutated positions).
 
@@ -222,13 +231,13 @@ and by serum neutralization breadth:
 
 Related IGoR models can be inferred on these sub-cohorts, by modifying the `cohort` parameter in the `config_igor.yaml ` file.
 
-The auxiliary script `script_lineages.py` can be used to infer lineages in annotated datasets. This file also contains RAxML commands used to reconstruct phylogenies and ancestral states in largest lineages, and functions to analyze phylogenies to quantify skewedness.
+The auxiliary script `script_lineages.py` can be used to infer lineages in annotated datasets. This file also contains **RAxML** commands used to reconstruct phylogenies and ancestral states in largest lineages, and functions to analyze phylogenies to quantify skewedness.
 
 ---
 
 ### The `bnabs` section
 
-In this section, for each bnab are reported the heavy- and light-chain sequences, together with some key features (e.g. their neutralization potency), taken from the literature.
+This section includes bNAb heavy- and light-chain sequences together with some key features (e.g. their neutralization potency), which were received from the [CATNAP](http://hiv.lanl.gov/catnap) database.
 
 Though already annotated, they can be re-annotated through the command:
 
@@ -240,12 +249,12 @@ in order to extract annotation results in the desired format and to prepare `.cs
 
 Output files are exactly analogous with those of the `ig` annotation step.
 
-Finally, by means of IGoR, it is possible to evaluate recombination and evolution probabilities of bnabs. Once chosen the desired model in the `config_igor.yaml` file (among the default IGoR ones or those inferred in the `ig` step on the three cohorts), the command:
+Finally, by means of IGoR, it is possible to evaluate recombination and evolution probabilities of bNAbs. Once chosen the desired model in the `config_igor.yaml` file (among the default IGoR ones or those inferred in the `ig` step on the three cohorts), the command:
 
 ```
 python3 launch_igor.py
 ```
 
-allows to get the aforementioned probabilities for each bnab. The output is of the same kind of that obtained in the `ig` step (apart from the `inference` folder, since here bnabs are just *evaluated* according to some IGoR models, and not used for further model inference).
+allows to get the aforementioned probabilities for each bNAb. The output is of the same kind of that obtained in the `ig` step (apart from the `inference` folder, since here bNAbs are just *evaluated* according to some IGoR models, and not used for further model inference).
 
-Finally, as for the `ig` step, a `.IGoR_summary` file is produced, combining for each bnab the results from igBlast annotation and from IGoR evaluation according to a certain model, recombination and hyper-mutation probabilities, and neutralization properties. It's this set of data that is eventually used for the final bnab analysis, i.e. the assessment of the correlation between their probability of being generated and developed, and their neutralization properties, whose results are stored in a `.neutr_regression` file under the `igor_bnabs_summary` folder.
+Finally, as for the `ig` step, a `.IGoR_summary` file is produced (under the `bnabs/igor_bnabs_summary` folder), combining for each bNAb the results from igBlast annotation and from IGoR evaluation according to a certain model, recombination and hyper-mutation probabilities, and neutralization properties. It's this set of data that is eventually used for the final bNAb analysis, i.e. the assessment of the correlation between their probability of being generated and developed, and their neutralization properties, whose result is stored in a `.neutr_regression` file, again under the `bnabs/igor_bnabs_summary` folder.
