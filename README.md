@@ -249,7 +249,7 @@ in order to extract annotation results in the desired format and to prepare `.cs
 
 Output files are exactly analogous with those of the `ig` annotation step.
 
-Finally, by means of IGoR, it is possible to evaluate recombination and evolution probabilities of bNAbs. Once chosen the desired model in the `config_igor.yaml` file (among the default IGoR ones or those inferred in the `ig` step on the three cohorts), the command:
+Finally, by means of IGoR, it is possible to evaluate recombination and evolution probabilities of bNAbs, and correlate them with the neutralization score. Once chosen the desired model in the `config_igor.yaml` file (among the default IGoR ones or those inferred in the `ig` step on the three cohorts), the command:
 
 ```
 python3 launch_igor.py
