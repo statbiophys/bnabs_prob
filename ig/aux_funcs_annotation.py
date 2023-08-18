@@ -120,7 +120,8 @@ def pairwise_comparison(query,germline,context):
             # deletion
             if(del_flag==0):
                 dct = {'type': "del", 'composition': "", 'Lcontext': str(query[max(0,i-Lside):i]), 'Rcontext': ""}
-                df = df.append(dct, ignore_index=True)
+                df = pd.concat([df, pd.DataFrame([dct])], ignore_index=True)
+                #df = df.append(dct, ignore_index=True)  # now deprecated
                 error_str = "[d|" + str(i) + "|" + str(query[max(0,i-Lside):i]) + "|"
             del_flag += 1
             df.loc[indel_count]['composition'] = df.iloc[indel_count]['composition'] + germline[i]
@@ -129,7 +130,8 @@ def pairwise_comparison(query,germline,context):
             # insertion
             if(ins_flag==0):
                 dct = {'type': "ins", 'composition': "", 'Lcontext': str(query[max(0,i-Lside):i]), 'Rcontext': ""}
-                df = df.append(dct, ignore_index=True)
+                df = pd.concat([df, pd.DataFrame([dct])], ignore_index=True)
+                #df = df.append(dct, ignore_index=True)  # now  deprecated
                 error_str = "[i|" + str(i) + "|" + str(query[max(0,i-Lside):i]) + "|"
             ins_flag += 1
             df.iloc[indel_count]['composition'] = df.iloc[indel_count]['composition'] + query[i]
@@ -303,16 +305,15 @@ def run_igBlast(in_file, species, chainType):
                     " -outfmt '7 std qseq sseq'" + \
                     " -show_translation" + \
                     " > " + out_file
-  
+
   try:
     res = os.system(igBlast_command)
     if res != 0:
       raise RuntimeError('igBlast execution failed!')
   except BaseException as err:
     raise err
-  
-  return
 
+  return
 
 def parse_igBlast(in_file, chainType, requireJ=True):
 

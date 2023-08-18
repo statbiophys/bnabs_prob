@@ -170,7 +170,7 @@ if config['parseIgBlast']:
         counts = counts[['seq_nt','seq_ID']]
         counts.rename(columns={'seq_ID': 'seq_nt_counts'}, inplace=True)
         df['seq_nt_counts'] = df['seq_nt'].map(counts.set_index('seq_nt')['seq_nt_counts'])
-        df = df.drop_duplicates(subset=['seq_nt'],keep='first')    # Drop seq_nt duplicates
+        #df = df.drop_duplicates(subset=['seq_nt'],keep='first')    # Drop seq_nt duplicates
 
         # Reconstruct gapped query and germlines (useful for Natanael's trees)
         '''
@@ -279,7 +279,9 @@ if config['sortAndCohort']:
         df['sample'] = sample
 
         # Drop duplicate sequences
-        df = df.drop_duplicates(subset=['seq_nt'],keep='first').reset_index(drop=True)    # Drop seq_nt duplicates
+        #df = df.drop_duplicates(subset=['seq_nt'],keep='first').reset_index(drop=True)    # Drop seq_nt duplicates
+        df.sort_values(['seq_nt', 'UMI_counts'], inplace=True, ascending=False)
+        df = df.drop_duplicates(subset=['seq_nt'],keep='first').reset_index(drop=True)
 
         # Trim sequences at the two edges
         df['trimmed_seq_nt'] = df['seq_nt'].apply(lambda x: x[config['n_l']:-config['n_r']])
@@ -416,8 +418,8 @@ if config['sortAndCohort']:
         df_cohort = df_cohort.query('N_indels==0')
 
       # Write csv
-      df_cohort_NP.to_csv(out_file_NP + '.csv', index=False, sep=';')
-      df_cohort_P.to_csv(out_file_P + '.csv', index=False, sep=';')
+      df_cohort_NP[['seq_ID','seq_nt']].to_csv(out_file_NP + '.csv', index=False, sep=';')
+      df_cohort_P[['seq_ID','seq_nt']].to_csv(out_file_P + '.csv', index=False, sep=';')
 
       # Write fasta
       ofile = open(out_file_NP + '.fasta', "w")
