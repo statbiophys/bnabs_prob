@@ -9,9 +9,6 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import poisson
-from sklearn import linear_model
-clf = linear_model.LinearRegression()
-from scipy.stats import linregress
 import glob as glob
 import os as os
 import yaml
@@ -98,7 +95,10 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
       print("wrong model!")
       quit()
     model_path += "_UMIthr_" + str(config['UMI_thr']) + "_trimmed_*_*_noHyperIndels_SHM" + SHMmodel + "/"
-    out_dir += "_SHM" + SHMmodel + "/"
+    out_dir += "_SHM" + SHMmodel
+    if config['useRegularizedModel']:
+      out_dir += "_regularized"
+    out_dir += "/"
     model_paths = glob.glob(model_path)
     try:
       model_path = os.path.abspath(model_paths[0])
@@ -116,8 +116,7 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     igor_chain_name = "IGK"
   if config['chainType']=="LC":
     igor_chain_name = "IGL"
-  
-  
+    
   ################################ SEQ READ ########################################
   
   if config['seqRead']:
@@ -158,10 +157,25 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
         runcmd += " --D " + genomicD
       runcmd += " --J " + genomicJ
       runcmd += " -set_CDR3_anchors --V " + anchorsV + " --J " + anchorsJ
-      runcmd += " -set_custom_model " + model_path + "final_parms.txt " + model_path + "final_marginals.txt"
+      runcmd += " -set_custom_model " + model_path
+      if config['useRegularizedModel']:
+        runcmd += "final_parms_regularized.txt"
+      else:
+        runcmd += "final_parms.txt"
+      runcmd += " " + model_path
+      if config['useRegularizedModel']:
+        runcmd += "final_marginals_regularized.txt"
+      else:
+        runcmd += "final_marginals.txt"
     runcmd += " -align --all"
     if config['bestGeneOnly']:
       runcmd += " ---best_gene_only true"
+    #else:
+    #  runcmd += " ---best_gene_only false"
+    #if config['bestAlignOnly']:
+    #  runcmd += " ---best_align_only true"
+    #else:
+    #  runcmd += " ---best_align_only false"
     #runcmd += " ---thresh " + str(Sc_thresh)
     runcmd += " ---gap_penalty " + str(config['gap_penalty'])
     #runcmd += " ---matrix " + nuc_matrix
@@ -199,9 +213,19 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
         runcmd += " --D " + genomicD
       runcmd += " --J " + genomicJ
       runcmd += " -set_CDR3_anchors --V " + anchorsV + " --J " + anchorsJ
-      runcmd += " -set_custom_model " + model_path + "final_parms.txt " + model_path + "final_marginals.txt"
+      runcmd += " -set_custom_model " + model_path
+      if config['useRegularizedModel']:
+        runcmd += "final_parms_regularized.txt"
+      else:
+        runcmd += "final_parms.txt"
+      runcmd += " " + model_path
+      if config['useRegularizedModel']:
+        runcmd += "final_marginals_regularized.txt"
+      else:
+        runcmd += "final_marginals.txt"
     runcmd += " -evaluate"
     runcmd += " --L_thresh " + config['L_thresh']
+    runcmd += " --P_ratio_thresh " + config['P_ignore']
     runcmd += " -output --Pgen"
     runcmd += " --scenarios " + str(config['N_scen'])
     
@@ -257,7 +281,7 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     ##### bnab binding site & neutralization data #####
     
-    in_file = input_dir + "bnabs_neutr.csv"
+    in_file = input_dir + "bnabs.csv"
     features_df = pd.read_csv(in_file, sep=";")
     
     main_df['binding_site'] = main_df['bnab_ID'].map(features_df.set_index('bnab_ID')['binding_site'])
@@ -404,8 +428,10 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     in_file = out_dir + "aligns/" + "indexed_sequences.csv"
     IGoR_noHyperIndels_indexing = pd.read_csv(in_file, sep=";")
     IGoR_noHyperIndels_indexing['seq_index'] = IGoR_noHyperIndels_indexing['seq_index'].astype(int)
+    
     #main_df['IGoR_seq_index'] = main_df['orig_seq_nt'].map(IGoR_indexing.set_index('sequence')['seq_index'])
     main_df['IGoR_noHyperIndels_seq_index'] = main_df['noHyperIndels_trimmed_seq_nt'].map(IGoR_noHyperIndels_indexing.set_index('sequence')['seq_index'])
+    
     ##### IGoR alignment #####
     
     #IGoR_V_align = pd.read_csv(sub_dir + "aligns/" + "V_alignments.csv", sep=";")
@@ -570,44 +596,12 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     ##### export the dataframe #####
     
-    out_file = out_dir + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.IGoR_summary'
+    out_file = out_dir + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
     main_df.to_csv(out_file, index=False, sep=';')
     
     # old name of this sub-folder: IGoR_analysis
     if not os.path.isdir(wk_dir + 'igor_bnabs_summary'):
       os.mkdir(wk_dir + 'igor_bnabs_summary')
     
-    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.IGoR_summary'
+    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
     main_df.to_csv(out_file, index=False, sep=';')
-    
-    ##### compute the regression with neutralization features #####
-
-    regr_df = main_df.query('IGoR_noHyperIndels_seq_likelihood==IGoR_noHyperIndels_seq_likelihood')
-    regr_df = regr_df.query('IGoR_noHyperIndels_seq_likelihood>0')
-    regr_df = regr_df.query('igBlast_CDR3_nt==igBlast_CDR3_nt')
-    regr_df = regr_df.query('AuC>10')
-    
-    X = [np.log10(regr_df['IGoR_noHyperIndels_Pgen']), np.log10(regr_df['IGoR_noHyperIndels_hyperMutations_likelihood'])]
-    X = np.reshape(np.array(X).T,(len(X[0]),len(X)))
-    
-    Y = np.log10(regr_df['AuC'])
-    
-    clf.fit(X,Y)
-    
-    Z = np.dot(X,clf.coef_)
-    
-    gradient, intercept, r_value, p_value, std_err = linregress(Z,Y)
-    
-    features = [",".join([str(x) for x in X[i]]) for i in range(len(X))]
-    coeffs = ",".join([str(x) for x in clf.coef_])
-    
-    df_out = pd.DataFrame({'bnab_ID': np.array(regr_df['bnab_ID']), \
-                           'features': features, \
-                           'coeffs': [coeffs for i in range(len(X))], \
-                           'bestFit_score': Z, \
-                           'log10AuC': Y, \
-                           'r_value': [r_value for i in range(len(X))], \
-                           'p_value': [p_value for i in range(len(X))]})
-    
-    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.neutr_regression'
-    df_out[['bnab_ID','log10AuC','features','coeffs','bestFit_score','r_value','p_value']].to_csv(out_file, index=False, sep=';')

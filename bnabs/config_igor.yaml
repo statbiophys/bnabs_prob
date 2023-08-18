@@ -9,8 +9,8 @@ species: "human"
 chainType: "HC"
 filter_by_indels: True
 edges_trimmed: True
-# n_l is 3 for "HC" and "KC", 27 for "LC"
-n_l: 3
+# n_l is 2 for "HC" and "KC", 27 for "LC"
+n_l: 2
 n_r: 2
 
 # Model specs (some quality filters included - referred to IGoR models to use for evaluating bnabs)
@@ -37,8 +37,8 @@ cohorts:
 #  - "hiv1_weak_neutralizers"
 #  - "hiv1_intermediate_neutralizers"
 #  - "hiv1_top_neutralizers"
-#  - "hiv1_ART_OFF"
-#  - "hiv1_ART_ON"
+#  - "hiv1_art_off"
+#  - "hiv1_art_on"
 SHMmodels:
   - "add5mer"
   - "full5mer"
@@ -55,18 +55,22 @@ seqRead: True
 alignment: True
 evalGenModel: True
 
-# Gathering together igBlast and IGoR results for bnabs; this step also computes the regression of bnabs score vs neutralization
+# Gathering together igBlast and IGoR results for bnabs
 bnabAnalysisFinalSummary: True
 
 # main flags
+# Default value for bestGeneOnly is false for V, D and J
 bestGeneOnly: False
+# Default value for bestAlignOnly is true for V and J, and false for D
+bestAlignOnly: True
+useRegularizedModel: True
 
 # IGoR internal parameters
 N_cores: 1
 L_thresh: '1e-307'
 N_iters: 10
 align_thr: 250
-P_ignore: 0.00001
+P_ignore: '1e-8'
 N_scen: 10
 V_thresh: 30.0
 D_thresh: 15.0
