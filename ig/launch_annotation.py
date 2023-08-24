@@ -92,13 +92,13 @@ if config['preProcessFiles']:
         try:
           make_fasta_from_csv(fullfilename + '.csv', headers=True, sep=';')
         except BaseException as err:
-          print(err)
+          raise err
 
       elif(os.path.isfile(fullfilename + '.csv')==False and os.path.isfile(fullfilename + '.fasta')==True):
         try:
           make_csv_from_fasta(fullfilename + '.fasta', headers=['seq_ID','raw_seq_nt'], sep=';')
         except BaseException as err:
-          print(err)
+          raise err
 
 # Step 2: run igBlast
 
@@ -147,7 +147,7 @@ if config['parseIgBlast']:
         try:
           df = parse_igBlast(in_file, config['chainType'], requireJ=True)
         except BaseException as err:
-          print(err)
+          raise err
 
         # UMI counts
         df['UMI_counts'] = df['seq_ID'].apply(lambda x: int(x.split(':')[3][1:]))

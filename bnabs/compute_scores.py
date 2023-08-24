@@ -48,7 +48,7 @@ for fit_model in [1,2,7]:
         in_file += "_SHM" + SHMmodel
         if useRegularizedMarginals:
             in_file += "_regularized"
-        in_file += ".df"
+        in_file += ".IGoR_summary"
         
         df = pd.read_csv(source_bnabs_data + "igor_bnabs_summary/" + in_file, sep=';')
         N_before = len(df)

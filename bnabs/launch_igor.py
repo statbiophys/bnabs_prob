@@ -105,7 +105,7 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
       if model_path[-1] != '/':
         model_path += '/'
     except BaseException as err:
-      print(err)
+      raise err
   
   if not os.path.isdir(out_dir):
     os.mkdir(out_dir)
@@ -596,12 +596,12 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     ##### export the dataframe #####
     
-    out_file = out_dir + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
+    out_file = out_dir + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.IGoR_summary'
     main_df.to_csv(out_file, index=False, sep=';')
     
     # old name of this sub-folder: IGoR_analysis
     if not os.path.isdir(wk_dir + 'igor_bnabs_summary'):
       os.mkdir(wk_dir + 'igor_bnabs_summary')
     
-    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.df'
+    out_file = wk_dir + 'igor_bnabs_summary/' + config['input_file_prefix'] + "_" + out_dir.split('/')[-2] + '.IGoR_summary'
     main_df.to_csv(out_file, index=False, sep=';')

@@ -33,6 +33,6 @@ cellType: "IgG"
 chainType: "heavy"
 
 # Trimming parameters
-# n_l is 3 for "heavy" and "kappa", 27 for "lambda"
-n_l: 3
+# n_l is 2 for "heavy" and "kappa", 27 for "lambda"
+n_l: 2
 n_r: 2

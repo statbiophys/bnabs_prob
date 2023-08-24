@@ -9,6 +9,7 @@
 import pandas as pd
 import os as os
 import yaml
+from aux_funcs_igor import *
 
 with open('config_igor.yaml') as config_file:
   config = yaml.full_load(config_file)
@@ -246,20 +247,41 @@ if config['inferGenModel']:
     raise err
   
   # Store the inferred model under 'templates' folder
-
+  
+  template_dir = inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
   runcmd = "mkdir -p " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
   runcmd += "; "
-  runcmd += "cp " + out_dir + "inference/final_parms.txt" + " " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
+  runcmd += "cp " + out_dir + "inference/final_parms.txt" + " " + template_dir
   runcmd += "; "
-  runcmd += "cp " + out_dir + "inference/final_marginals.txt" + " " + inferredIgorTemplates + prefix + "_SHM" + config['SHMmodel'] + "/"
-
+  runcmd += "cp " + out_dir + "inference/final_marginals.txt" + " " + template_dir
+  
   try:
     res = os.system(runcmd)
     if res != 0:
       raise RuntimeError('Bash error when copying IGoR inferred model.')
   except BaseException as err:
     raise err
-
+  
+  # Regularize the stored model
+  
+  try:
+    
+    with open(out_dir + "aligns/indexed_sequences.csv", "r") as fp:
+      N_seqs = len(fp.readlines()) - 1
+    
+    inference_specs = {'N_seqs': N_seqs}
+    with open(template_dir + "inference_specs.yaml", "w") as fp:
+      yaml.dump(inference_specs, fp, default_flow_style=False)
+    
+    model_file = template_dir + "final_marginals.txt"
+    parms_file = template_dir + "final_parms.txt"
+    
+    marginals = read_marginals_from_file(model_file, parms_file)
+    regularized_marginals = regularize_joint_marginals(marginals, N_seqs)
+    write_marginals_on_file(model_file, parms_file, N_seqs)
+    
+  except BaseException as err:
+    raise err
   
 ################################ EVALUATE GENERATIVE MODEL ########################################
 

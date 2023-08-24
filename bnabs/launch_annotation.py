@@ -76,13 +76,13 @@ if config['preProcessFiles']:
       try:
         make_fasta_from_csv(fullfilename + '.csv', headers=True, sep=';')
       except BaseException as err:
-        print(err)
+        raise err
 
     elif(os.path.isfile(fullfilename + '.csv')==False and os.path.isfile(fullfilename + '.fasta')==True):
       try:
         make_csv_from_fasta(fullfilename + '.fasta', headers=['bnab_ID','raw_seq_nt'], sep=';')
       except BaseException as err:
-        print(err)
+        raise err
 
 # Step 2: run igBlast
 
@@ -125,7 +125,7 @@ if config['parseIgBlast']:
       try:
         df = parse_igBlast(in_file, config['chainType'], requireJ=True)
       except BaseException as err:
-        print(err)
+        raise err
 
       # Quality filtering
       #df = df[df['V_best_align_length_beforeCDR3']>=config['V_min_len']]    # V gene should align at least for V_min_len nt
@@ -215,11 +215,11 @@ if config['produceFinalFiles']:
       try:
         make_fasta_from_csv(out_file.split('.')[0] + '.csv', headers=True, sep=';')
       except BaseException as err:
-        print(err)
+        raise err
 
       out_file = "/".join(fullfilename.split('/')[:-1]) + '/' + fullfilename.split('/')[-1].split('.')[0] + '_noHyperIndels_trimmed_' + str(config['n_l']) + '_' + str(config['n_r']) + '.csv'
       df[['bnab_ID','reverted_seq_nt_trimmed']].to_csv(out_file, index=False, sep=';')
       try:
         make_fasta_from_csv(out_file.split('.')[0] + '.csv', headers=True, sep=';')
       except BaseException as err:
-        print(err)
+        raise err
