@@ -305,14 +305,14 @@ def run_igBlast(in_file, species, chainType):
                     " -outfmt '7 std qseq sseq'" + \
                     " -show_translation" + \
                     " > " + out_file
-
+  
   try:
     res = os.system(igBlast_command)
     if res != 0:
       raise RuntimeError('igBlast execution failed!')
   except BaseException as err:
     raise err
-
+  
   return
 
 def parse_igBlast(in_file, chainType, requireJ=True):

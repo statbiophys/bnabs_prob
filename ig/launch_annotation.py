@@ -415,7 +415,8 @@ if config['sortAndCohort']:
       if(filterOutHyperIndels):
         out_file_NP += '_noHyperIndels'
         out_file_P += '_noHyperIndels'
-        df_cohort = df_cohort.query('N_indels==0')
+        df_cohort_NP = df_cohort_NP.query('N_indels==0')
+        df_cohort_P = df_cohort_P.query('N_indels==0')
 
       # Write csv
       df_cohort_NP[['seq_ID','seq_nt']].to_csv(out_file_NP + '.csv', index=False, sep=';')

@@ -281,7 +281,7 @@ for (cohort,produc,SHMmodel) in [(c,p,s) for c in cohorts for p in producs for s
     
     ##### bnab binding site & neutralization data #####
     
-    in_file = input_dir + "bnabs.csv"
+    in_file = input_dir + "bnabs_neutr.csv"
     features_df = pd.read_csv(in_file, sep=";")
     
     main_df['binding_site'] = main_df['bnab_ID'].map(features_df.set_index('bnab_ID')['binding_site'])
