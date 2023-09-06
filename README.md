@@ -215,12 +215,12 @@ is again fully customizable from the `config_igor.yaml` file (e.g., the user can
 
 The output consists into a set of folders (`aligns`, `evaluate`, `inference`, `output`) containing IGoR results, as described in its [documentation](https://statbiophys.github.io/IGoR/). In particular, the two files under the `inference` folder, `final_parms.txt` and `final_marginals.txt`, are the ones containing the inferred model to be used later for bNAb evaluation. To this aim, they will also be copied automatically under the `template/igor_models/inferred` folder.
 
-Also, a `.IGoR_summary` summary file is produced by combining for each sequence the results from igBlast annotation and IGoR evaluation, potentially useful for a deeper analysis at the single-sequence level, or also to extract summary statistics at the donor or cohort level (e.g., the distribution of the fraction of point-mutated positions).
+Also, a `.IGoR_summary` summary file is produced by combining for each sequence the results from igBlast annotation and IGoR evaluation, potentially useful for a deeper analysis at the single-sequence level, or also to extract summary statistics at the donor or cohort level (e.g., the distribution of the fraction of point-mutated positions) by means of the auxiliary script `compute_stats.py`. 
 
 The "hiv1" cohort can be further stratified by antiretroviral therapy (ART) treatment:
 
-- "hiv1\_ART\_OFF"
-- "hiv1\_ART\_ON"
+- "hiv1\_art\_off"
+- "hiv1\_art\_on"
 
 and by serum neutralization breadth:
 
@@ -229,7 +229,7 @@ and by serum neutralization breadth:
 - "hiv1\_intermediate\_neutralizers"
 - "hiv1\_top\_neutralizers"
 
-Related IGoR models can be inferred on these sub-cohorts, by modifying the `cohort` parameter in the `config_igor.yaml ` file.
+Related IGoR models can be inferred on these sub-cohorts, by modifying the `cohort` parameter in the `config_igor.yaml` file.
 
 The auxiliary script `script_lineages.py` can be used to infer lineages in annotated datasets. This file also contains **RAxML** commands used to reconstruct phylogenies and ancestral states in largest lineages, and functions to analyze phylogenies to quantify skewedness.
 
@@ -257,4 +257,4 @@ python3 launch_igor.py
 
 allows to get the aforementioned probabilities for each bNAb. The output is of the same kind of that obtained in the `ig` step (apart from the `inference` folder, since here bNAbs are just *evaluated* according to some IGoR models, and not used for further model inference).
 
-Finally, as for the `ig` step, a `.IGoR_summary` file is produced (under the `bnabs/igor_bnabs_summary` folder), combining for each bNAb the results from igBlast annotation and from IGoR evaluation according to a certain model, recombination and hyper-mutation probabilities, and neutralization properties. It's this set of data that is eventually used for the final bNAb analysis, i.e. the assessment of the correlation between their probability of being generated and developed, and their neutralization properties, whose result is stored in a `.neutr_regression` file, again under the `bnabs/igor_bnabs_summary` folder.
+Finally, as for the `ig` step, a `.IGoR_summary` file is produced (under the `bnabs/igor_bnabs_summary` folder), combining for each bNAb the results from igBlast annotation and from IGoR evaluation according to a certain model, recombination and hyper-mutation probabilities, and neutralization properties. It's this set of data that is eventually used for the final bNAb analysis in the `compute_scores.py` auxiliary script, i.e. the assessment of the correlation between their probability of being generated and developed, and their neutralization properties, whose result is stored in a `.csv` file under the `bnabs/neutr_score_prediction` folder.
