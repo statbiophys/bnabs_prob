@@ -14,7 +14,7 @@ For any issue, question or bug, please write [us](mailto:cosimo.lupo89@gmail.com
 
 ### Summary
 
-The present code, companion of the manuscript *"Determining probabilities of HIV-1 bNAb development in healthy and chronically infected individuals"*, is conceptually divided in two sections:
+The present code, companion of the manuscript *"Probabilities of developing HIV-1 bNAb sequence features in uninfected and chronically infected individuals"*, is conceptually divided in two sections:
 
 1) `ig`, where we process B-Cell Receptor (BCR) repertoires from either healthy or chronically infected patientes, grouped into three cohorts: "healthy\_control", "hiv1", and "hcv". Sequences are firstly annotated through igBlast, then sorted and grouped by cohorts. Secondly, IGoR infers their recombination and evolution statistics, finally producing cohort-specific models.
 
@@ -237,7 +237,9 @@ The auxiliary script `script_lineages.py` can be used to infer lineages in annot
 
 ### The `bnabs` section
 
-This section includes bNAb heavy- and light-chain sequences together with some key features (e.g. their neutralization potency), which were received from the [CATNAP](http://hiv.lanl.gov/catnap) database.
+This section includes the `bnabs_neutr.csv` file, listing the 70 bNAbs analyzed, together with info about their binding site and their neutralization potency. These (and way more) info can be retrieved from the [CATNAP](http://hiv.lanl.gov/catnap) database.
+
+In order to run this part of the analysis pipeline, one should retrieve the publicly available nucleotide sequences for the 70 bnabs (e.g. again from the CATNAP database linked above) and sort heavy, kappa and lambda chain sequences into three different `.fasta` files, respectively named as `bnabs_seqs_HC.fasta`, `bnabs_seqs_KC.fasta`, and `bnabs_seqs_LC.fasta`.
 
 Though already annotated, they can be re-annotated through the command:
 
