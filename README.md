@@ -241,7 +241,7 @@ This section includes the `bnabs_neutr.csv` file, listing the 70 bNAbs analyzed,
 
 In order to run this part of the analysis pipeline, one should provide the fasta files for the 70 bnabs of interest (nucleotide sequences are publicly available, e.g. on the CATNAP database linked above), sorting heavy, kappa and lambda chain sequences into three different `.fasta` files (respectively named as `bnabs_seqs_HC.fasta`, `bnabs_seqs_KC.fasta`, and `bnabs_seqs_LC.fasta`).
 
-Though already annotated, they can be re-annotated through the command:
+Though already annotated, bNAbs can be re-annotated through the command:
 
 ```
 python3 launch_annotation.py
