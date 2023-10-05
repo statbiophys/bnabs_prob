@@ -237,9 +237,9 @@ The auxiliary script `script_lineages.py` can be used to infer lineages in annot
 
 ### The `bnabs` section
 
-This section includes the `bnabs_neutr.csv` file, listing the 70 bNAbs analyzed, together with info about their binding site and their neutralization potency. These (and way more) info can be retrieved from the [CATNAP](http://hiv.lanl.gov/catnap) database.
+This section includes the `bnabs_neutr.csv` file, listing the 70 bNAbs analyzed, together with info about their binding site and their neutralization potency. These (and more) info can be retrieved from the [CATNAP](http://hiv.lanl.gov/catnap) database.
 
-In order to run this part of the analysis pipeline, one should retrieve the publicly available nucleotide sequences for the 70 bnabs (e.g. again from the CATNAP database linked above) and sort heavy, kappa and lambda chain sequences into three different `.fasta` files, respectively named as `bnabs_seqs_HC.fasta`, `bnabs_seqs_KC.fasta`, and `bnabs_seqs_LC.fasta`.
+In order to run this part of the analysis pipeline, one should provide the fasta files for the 70 bnabs of interest (nucleotide sequences are publicly available, e.g. on the CATNAP database linked above), sorting heavy, kappa and lambda chain sequences into three different `.fasta` files (respectively named as `bnabs_seqs_HC.fasta`, `bnabs_seqs_KC.fasta`, and `bnabs_seqs_LC.fasta`).
 
 Though already annotated, they can be re-annotated through the command:
 
